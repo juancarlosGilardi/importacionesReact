@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - Sistema de Costeo de Importaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .header-content {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-white);
+            box-shadow: var(--shadow);
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        .nav a.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            align-self: start;
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Content */
+        .content {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+
+        .content h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .content h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .content ul, .content ol {
+            margin: 1rem 0 1rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Cards */
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Steps */
+        .steps {
+            counter-reset: step-counter;
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border-radius: var(--radius);
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .step-number::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+        }
+
+        .step-content h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Code */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e0f2fe;
+            border-color: var(--primary);
+            color: #0369a1;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                margin-bottom: 2rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .feature-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                gap: 1rem;
+            }
+
+            .nav a {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Print */
+        @media print {
+            .nav-container,
+            .sidebar,
+            .footer {
+                display: none;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-new {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-updated {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted var(--secondary);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            width: 200px;
+            background: var(--text-primary);
+            color: white;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Search */
+        .search-box {
+            margin: 2rem 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content fade-in">
+                <h1>Sistema de Costeo de Importaciones</h1>
+                <p class="header-subtitle">Manual de Usuario y Guía de Implementación</p>
+                <div class="version-badge">Versión 1.0.0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container">
+        <div class="container">
+            <nav class="nav">
+                <a href="#inicio" class="active">Inicio</a>
+                <a href="#modulos">Módulos</a>
+                <a href="#instalacion">Instalación</a>
+                <a href="#flujo">Flujo de Trabajo</a>
+                <a href="#faq">Preguntas Frecuentes</a>
+                <a href="#soporte">Soporte</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Search -->
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Buscar en el manual...">
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar fade-in">
+                <h3 class="sidebar-title">Contenido</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#inicio" class="active">Inicio</a></li>
+                    <li><a href="#modulos">Módulos del Sistema</a></li>
+                    <li><a href="#ordenes">Órdenes de Compra</a></li>
+                    <li><a href="#facturas">Facturas XML</a></li>
+                    <li><a href="#dua">Registro DUA</a></li>
+                    <li><a href="#gastos">Gastos de Importación</a></li>
+                    <li><a href="#prorrateo">Prorrateo de Costos</a></li>
+                    <li><a href="#almacen">Almacén</a></li>
+                    <li><a href="#reportes">Reportes</a></li>
+                    <li><a href="#instalacion">Instalación</a></li>
+                    <li><a href="#flujo">Flujo de Trabajo</a></li>
+                    <li><a href="#faq">Preguntas Frecuentes</a></li>
+                    <li><a href="#soporte">Soporte Técnico</a></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="content fade-in">
+                <!-- Inicio -->
+                <section id="inicio">
+                    <h2>Introducción al Sistema</h2>
+                    <p>El <strong>Sistema de Costeo de Importaciones</strong> es una solución integral diseñada para gestionar y controlar todos los procesos relacionados con la importación de mercancías, desde la orden de compra hasta el ingreso a almacén.</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Objetivo Principal:</strong> Automatizar el cálculo del costo real de importación mediante el prorrateo de gastos a los productos importados.
+                    </div>
+
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="feature-card-icon">
+                                📋
+                            </div>
+                            <h4>Gestión Completa</h4>
+                            <p>Administra todo el ciclo de importación en un solo lugar.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-card-icon">
+                                💰
+                            </div>
+                            <h4>Control de Costos</h4>
+                            <p>Calcula automáticamente el costo real de importación.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-card-icon">
+                                📊
+                            </div>
+                            <h4>Reportes Avanzados</h4>
+                            <p>Genera reportes detallados para análisis y toma de decisiones.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Módulos -->
+                <section id="modulos">
+                    <h2>Módulos del Sistema</h2>
+                    <p>El sistema está organizado en 8 módulos principales que cubren todo el proceso de importación:</p>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Módulo</th>
+                                    <th>Función Principal</th>
+                                    <th>Icono</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Órdenes de Compra</strong></td>
+                                    <td>Registro y seguimiento de órdenes de compra internacionales</td>
+                                    <td>🛒</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Facturas XML</strong></td>
+                                    <td>Registro y procesamiento de facturas de proveedores</td>
+                                    <td>🧾</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Documentos de Transporte</strong></td>
+                                    <td>Gestión de BL, AWB y documentos de transporte</td>
+                                    <td>🚚</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DUA</strong></td>
+                                    <td>Registro y cálculo de impuestos aduaneros</td>
+                                    <td>📑</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gastos de Importación</strong></td>
+                                    <td>Registro de costos adicionales (flete, seguro, etc.)</td>
+                                    <td>💰</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Prorrateo de Costos</strong></td>
+                                    <td>Distribución de costos a productos importados</td>
+                                    <td>📊</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Almacén</strong></td>
+                                    <td>Registro de ingreso de mercancías al almacén</td>
+                                    <td>🏭</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reportes</strong></td>
+                                    <td>Análisis y reportes del sistema</td>
+                                    <td>📈</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Órdenes de Compra -->
+                <section id="ordenes">
+                    <h2>Módulo: Órdenes de Compra</h2>
+                    <p>Gestión completa de órdenes de compra internacionales (PO).</p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Crear Nueva Orden</h4>
+                                <p>Acceda a <strong>Órdenes → Nueva Orden</strong> y complete todos los campos requeridos:</p>
+                                <ul>
+                                    <li><strong>Número PO:</strong> Identificador único de la orden</li>
+                                    <li><strong>Proveedor:</strong> Seleccione del catálogo de proveedores</li>
+                                    <li><strong>Fecha Orden:</strong> Fecha de emisión de la orden</li>
+                                    <li><strong>Incoterm:</strong> Términos de entrega (FOB, CIF, etc.)</li>
+                                    <li><strong>Items:</strong> Agregue productos con cantidades y precios</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Estados de la Orden</h4>
+                                <p>El sistema maneja 7 estados principales:</p>
+                                <ol>
+                                    <li><span class="badge">Borrador</span> - En preparación</li>
+                                    <li><span class="badge">Confirmada</span> - Confirmada con proveedor</li>
+                                    <li><span class="badge">En Tránsito</span> - Mercancía en camino</li>
+                                    <li><span class="badge">En Aduana</span> - Proceso de desaduanaje</li>
+                                    <li><span class="badge">Prorrateado</span> - Costos calculados</li>
+                                    <li><span class="badge">En Almacén</span> - Mercancía recibida</li>
+                                    <li><span class="badge">Completada</span> - Importación finalizada</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Vista de Detalle</h4>
+                                <p>Cada orden tiene una vista detallada que incluye:</p>
+                                <ul>
+                                    <li>Timeline del estado actual</li>
+                                    <li>Información general y logística</li>
+                                    <li>Items de la orden</li>
+                                    <li>Facturas relacionadas</li>
+                                    <li>Gastos asociados</li>
+                                    <li>Documentos de transporte</li>
+                                    <li>Información de DUA</li>
+                                    <li>Movimientos de almacén</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Facturas XML -->
+                <section id="facturas">
+                    <h2>Módulo: Facturas XML</h2>
+                    <p>Registro y gestión de facturas de proveedores internacionales.</p>
+
+                    <div class="alert alert-warning">
+                        <strong>Nota:</strong> El sistema soporta subida de archivos XML para extracción automática de datos.
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Registrar Factura</h4>
+                                <p>Para registrar una nueva factura:</p>
+                                <ol>
+                                    <li>Acceda a <strong>Facturas → Nueva Factura</strong></li>
+                                    <li>Seleccione la orden de compra relacionada</li>
+                                    <li>Ingrese el número de factura y fecha</li>
+                                    <li>Complete los montos (subtotal, IGV, total)</li>
+                                    <li>Verifique los items automáticamente cargados de la PO</li>
+                                    <li>Guarde la factura</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Subir XML</h4>
+                                <p>Para aprovechar la funcionalidad de XML:</p>
+                                <div class="code-block">
+                                    // El sistema automáticamente extraerá:
+                                    - Número de factura
+                                    - Fecha de emisión
+                                    - Proveedor
+                                    - Items y cantidades
+                                    - Montos (subtotal, impuestos, total)
+                                    - Moneda
+                                </div>
+                                <p>Haga clic en <strong>"Subir XML"</strong> y seleccione el archivo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DUA -->
+                <section id="dua">
+                    <h2>Módulo: Registro DUA</h2>
+                    <p>Gestión del Documento Único de Aduana y cálculo de impuestos.</p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Registrar DUA</h4>
+                                <p>Para registrar un nuevo DUA:</p>
+                                <ul>
+                                    <li><strong>Número DUA:</strong> Número del documento</li>
+                                    <li><strong>Fecha Registro:</strong> Fecha de registro en aduana</li>
+                                    <li><strong>Valores:</strong> FOB, flete, seguro, CIF</li>
+                                    <li><strong>Impuestos:</strong> Ad-valorem, IGV, IPM, otros</li>
+                                    <li><strong>Gastos Aduaneros:</strong> Honorarios, almacenaje, etc.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Cálculo Automático</h4>
+                                <p>El sistema calcula automáticamente:</p>
+                                <div class="code-block">
+                                    CIF = FOB + Flete + Seguro
+                                    Ad-valorem = CIF × Tasa
+                                    IGV = (CIF + Ad-valorem) × 18%
+                                    IPM = (CIF + Ad-valorem) × Tasa
+                                    Total Impuestos = Suma de todos los impuestos
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gastos -->
+                <section id="gastos">
+                    <h2>Módulo: Gastos de Importación</h2>
+                    <p>Registro de todos los costos asociados a la importación.</p>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Gasto</th>
+                                    <th>Descripción</th>
+                                    <th>Requiere Proveedor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Flete Internacional</strong></td>
+                                    <td>Transporte internacional de la mercancía</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Seguro</strong></td>
+                                    <td>Seguro de transporte internacional</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Flete Local</strong></td>
+                                    <td>Transporte nacional desde puerto</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gastos Aduaneros</strong></td>
+                                    <td>Honorarios de agencia aduanal</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Honorarios Agente</strong></td>
+                                    <td>Honorarios de agente de carga</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Almacenaje</strong></td>
+                                    <td>Almacenamiento temporal</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gastos Bancarios</strong></td>
+                                    <td>Comisiones y gastos bancarios</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Otros Gastos</strong></td>
+                                    <td>Gastos varios no categorizados</td>
+                                    <td>❌</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Prorrateo -->
+                <section id="prorrateo">
+                    <h2>Módulo: Prorrateo de Costos</h2>
+                    <p>Distribución de costos de importación a los productos.</p>
+
+                    <div class="alert alert-success">
+                        <strong>Importante:</strong> Este módulo calcula el costo real por producto considerando todos los gastos de importación.
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Métodos de Prorrateo</h4>
+                                <p>El sistema ofrece 4 métodos:</p>
+                                <ol>
+                                    <li><strong>Por Valor (FOB):</strong> Según el valor de cada producto</li>
+                                    <li><strong>Por Peso:</strong> Según el peso de cada producto</li>
+                                    <li><strong>Por Volumen:</strong> Según el volumen de cada producto</li>
+                                    <li><strong>Manual:</strong> Distribución manual personalizada</li>
+                                </ol>
+                                <p class="tooltip">¿Cuál método usar?
+                                    <span class="tooltip-text">Use Por Valor para productos con valores similares, Por Peso para productos pesados, Por Volumen para productos voluminosos.</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Proceso de Prorrateo</h4>
+                                <p>Para ejecutar el prorrateo:</p>
+                                <div class="code-block">
+                                    1. Seleccione la orden de compra
+                                    2. Elija el método de prorrateo
+                                    3. Revise los datos cargados (FOB y gastos)
+                                    4. Calcule el prorrateo
+                                    5. Revise los resultados
+                                    6. Aplique el prorrateo al sistema
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Almacén -->
+                <section id="almacen">
+                    <h2>Módulo: Almacén</h2>
+                    <p>Registro de ingreso de mercancías al almacén.</p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Registrar Ingreso</h4>
+                                <p>Para registrar el ingreso de mercancías:</p>
+                                <ul>
+                                    <li><strong>Movimiento:</strong> Ingreso, Transferencia, Ajuste</li>
+                                    <li><strong>Fecha:</strong> Fecha del movimiento</li>
+                                    <li><strong>Ubicación:</strong> Ubicación en el almacén</li>
+                                    <li><strong>Lote:</strong> Número de lote (opcional)</li>
+                                    <li><strong>Items:</strong> Productos recibidos</li>
+                                    <li><strong>Cantidades:</strong> Cantidades recibidas por producto</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Actualización Automática</h4>
+                                <p>Al registrar el ingreso, el sistema automáticamente:</p>
+                                <ol>
+                                    <li>Actualiza el estado de la orden a "En Almacén"</li>
+                                    <li>Actualiza el inventario de productos</li>
+                                    <li>Registra el costo unitario prorrateado</li>
+                                    <li>Genera reporte de ingreso</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reportes -->
+                <section id="reportes">
+                    <h2>Módulo: Reportes</h2>
+                    <p>Análisis y reportes del sistema.</p>
+
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <h4>📊 Dashboard Principal</h4>
+                            <ul>
+                                <li>Métricas clave del sistema</li>
+                                <li>Gráficos de tendencias</li>
+                                <li>Importaciones por mes</li>
+                                <li>Distribución de gastos</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🧾 Reporte de Facturas</h4>
+                            <ul>
+                                <li>Facturas por periodo</li>
+                                <li>Análisis por proveedor</li>
+                                <li>Estados de facturas</li>
+                                <li>Montos por moneda</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>💰 Reporte de Costos</h4>
+                            <ul>
+                                <li>Costos por importación</li>
+                                <li>Análisis por tipo de gasto</li>
+                                <li>Comparación de costos</li>
+                                <li>Costo por producto</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>Exportación:</strong> Todos los reportes pueden exportarse a Excel y PDF.
+                    </div>
+                </section>
+
+                <!-- Instalación -->
+                <section id="instalacion">
+                    <h2>Instalación y Configuración</h2>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Requisitos del Sistema</h4>
+                                <ul>
+                                    <li><strong>Python:</strong> Versión 3.8 o superior</li>
+                                    <li><strong>MySQL:</strong> Versión 5.7 o superior</li>
+                                    <li><strong>Memoria RAM:</strong> Mínimo 4GB recomendado</li>
+                                    <li><strong>Espacio Disco:</strong> 500MB mínimo</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Pasos de Instalación</h4>
+                                <div class="code-block">
+                                    # 1. Clonar el repositorio
+                                    git clone https://github.com/.../importaciones.git
+
+                                    # 2. Crear entorno virtual
+                                    python -m venv venv
+                                    venv\Scripts\activate  # Windows
+                                    source venv/bin/activate  # Linux/Mac
+
+                                    # 3. Instalar dependencias
+                                    pip install -r requirements.txt
+
+                                    # 4. Configurar base de datos
+                                    mysql -u root -p < importaciones_costeo.sql
+
+                                    # 5. Configurar variables
+                                    cp config_importaciones.py.example config_importaciones.py
+                                    # Editar config_importaciones.py con tus datos
+
+                                    # 6. Ejecutar la aplicación
+                                    python main_importaciones.py
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Configuración Inicial</h4>
+                                <p>Después de la instalación, configure:</p>
+                                <ol>
+                                    <li>Proveedores en el catálogo</li>
+                                    <li>Productos del inventario</li>
+                                    <li>Monedas y tipos de cambio</li>
+                                    <li>Usuarios del sistema</li>
+                                    <li>Parámetros del sistema</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Flujo de Trabajo -->
+                <section id="flujo">
+                    <h2>Flujo de Trabajo Completo</h2>
+                    <p>Flujo estándar para una importación:</p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 1: Crear Orden de Compra</h4>
+                                <p>Registre la orden de compra internacional con todos los detalles y items.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 2: Registrar Factura</h4>
+                                <p>Cuando reciba la factura del proveedor, regístrela en el sistema.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 3: Documentos de Transporte</h4>
+                                <p>Registre BL/AWB y otros documentos de transporte.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 4: Registrar DUA</h4>
+                                <p>Cuando reciba el DUA, ingréselo al sistema para cálculo de impuestos.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 5: Registrar Gastos</h4>
+                                <p>Registre todos los gastos adicionales de la importación.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 6: Prorrateo de Costos</h4>
+                                <p>Distribuya los costos a los productos para obtener costo real.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 7: Ingreso a Almacén</h4>
+                                <p>Registre el ingreso de la mercancía al almacén.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number"></div>
+                            <div class="step-content">
+                                <h4>Paso 8: Generar Reportes</h4>
+                                <p>Genere reportes para análisis y contabilización.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ -->
+                <section id="faq">
+                    <h2>Preguntas Frecuentes</h2>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Cómo calcula el sistema el costo real?</h4>
+                                <p>El sistema suma todos los costos (FOB + flete + seguro + impuestos + gastos) y los distribuye a los productos según el método de prorrateo seleccionado.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Puedo importar facturas XML?</h4>
+                                <p>Sí, el sistema tiene funcionalidad para subir archivos XML y extraer automáticamente los datos de la factura.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Qué métodos de prorrateo son más comunes?</h4>
+                                <p>El método más utilizado es "Por Valor (FOB)", pero depende del tipo de productos. Para productos pesados use "Por Peso", para voluminosos "Por Volumen".</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Cómo actualizo el estado de una orden?</h4>
+                                <p>El estado se actualiza automáticamente según las acciones que realice (registrar DUA, ingresar a almacén). También puede cambiarlo manualmente desde el formulario de edición.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Puedo exportar los reportes?</h4>
+                                <p>Sí, todos los reportes pueden exportarse a Excel y PDF desde el módulo de reportes.</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-content">
+                                <h4>¿Cómo configuro nuevos tipos de gastos?</h4>
+                                <p>Los tipos de gastos se configuran en la tabla <code>expense_types_ui</code> de la base de datos. Puede agregar nuevos tipos según sus necesidades.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Soporte -->
+                <section id="soporte">
+                    <h2>Soporte Técnico</h2>
+
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <h4>📞 Contacto Directo</h4>
+                            <ul>
+                                <li><strong>Email:</strong> soporte@importaciones.com</li>
+                                <li><strong>Teléfono:</strong> +51 1 123-4567</li>
+                                <li><strong>Horario:</strong> Lunes a Viernes 9:00-18:00</li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>📚 Recursos Adicionales</h4>
+                            <ul>
+                                <li><a href="#">Guía de instalación detallada</a></li>
+                                <li><a href="#">Videos tutoriales</a></li>
+                                <li><a href="#">Plantillas de importación</a></li>
+                                <li><a href="#">Manual técnico</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🔧 Solución de Problemas</h4>
+                            <ul>
+                                <li><a href="#">Errores comunes</a></li>
+                                <li><a href="#">FAQ técnica</a></li>
+                                <li><a href="#">Actualizaciones</a></li>
+                                <li><a href="#">Foro de la comunidad</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Nota:</strong> Antes de contactar soporte, verifique que tiene la última versión del sistema y consulte la documentación.
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <h3>Sistema de Costeo de Importaciones</h3>
+            <p>Manual de Usuario - Versión 1.0.0</p>
+            
+            <div class="footer-links">
+                <a href="#inicio">Inicio</a>
+                <a href="#modulos">Módulos</a>
+                <a href="#faq">FAQ</a>
+                <a href="#soporte">Soporte</a>
+            </div>
+            
+            <p>© 2024 Sistema de Costeo de Importaciones. Todos los derechos reservados.</p>
+            <p>Última actualización: Diciembre 2024</p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update active nav
+                    document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update sidebar
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    document.querySelector(`.sidebar-menu a[href="${targetId}"]`)?.classList.add('active');
+                }
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        const contentSections = document.querySelectorAll('section');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            if (searchTerm.length < 2) {
+                contentSections.forEach(section => section.style.display = 'block');
+                return;
+            }
+            
+            contentSections.forEach(section => {
+                const sectionContent = section.textContent.toLowerCase();
+                const sectionId = section.getAttribute('id');
+                const sectionTitle = document.querySelector(`a[href="#${sectionId}"]`)?.textContent.toLowerCase();
+                
+                if (sectionContent.includes(searchTerm) || sectionTitle?.includes(searchTerm)) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+
+        // Highlight active section on scroll
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY + 100;
+            
+            let currentSectionId = '';
+            contentSections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+            
+            if (currentSectionId) {
+                document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+                document.querySelector(`.nav a[href="#${currentSectionId}"]`)?.classList.add('active');
+                
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                document.querySelector(`.sidebar-menu a[href="#${currentSectionId}"]`)?.classList.add('active');
+            }
+        });
+
+        // Print functionality
+        const printButton = document.createElement('button');
+        printButton.textContent = '🖨️ Imprimir Manual';
+        printButton.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        document.body.appendChild(printButton);
+        
+        printButton.addEventListener('click', function() {
+            window.print();
+        });
+
+        // Add copy code functionality
+        document.querySelectorAll('.code-block').forEach(codeBlock => {
+            const copyButton = document.createElement('button');
+            copyButton.textContent = '📋 Copiar';
+            copyButton.style.cssText = `
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: rgba(255,255,255,0.1);
+                color: white;
+                border: none;
+                padding: 3px 8px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.8rem;
+            `;
+            
+            codeBlock.style.position = 'relative';
+            codeBlock.appendChild(copyButton);
+            
+            copyButton.addEventListener('click', function() {
+                const codeText = codeBlock.textContent.replace('📋 Copiar', '').trim();
+                navigator.clipboard.writeText(codeText).then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = '✅ Copiado!';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                });
+            });
+        });
+
+        // Initialize first section as active
+        document.querySelector('.nav a').classList.add('active');
+        document.querySelector('.sidebar-menu a').classList.add('active');
+    </script>
+</body>
+</html>
