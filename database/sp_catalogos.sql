@@ -19,7 +19,9 @@ CREATE PROCEDURE sp_proveedor_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         p.id, p.ruc, p.razon_social, p.nombre_comercial,
@@ -39,7 +41,7 @@ BEGIN
            OR p.nombre_comercial LIKE CONCAT('%', p_search, '%')
            OR p.ruc LIKE CONCAT('%', p_search, '%'))
     ORDER BY p.razon_social
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
 
 CREATE PROCEDURE sp_proveedor_contar(
@@ -168,7 +170,9 @@ CREATE PROCEDURE sp_producto_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         pr.id, pr.sku, pr.nombre, pr.descripcion,
@@ -192,7 +196,7 @@ BEGIN
            OR pr.nombre LIKE CONCAT('%', p_search, '%')
            OR pr.codigo_hs LIKE CONCAT('%', p_search, '%'))
     ORDER BY pr.nombre
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
 
 CREATE PROCEDURE sp_producto_contar(

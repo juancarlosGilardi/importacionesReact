@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from ..database import call_sp
 from ..auth import get_current_user
 
@@ -80,3 +80,11 @@ async def asociar_oc(id: int, data: dict, _=Depends(get_current_user)):
 @router.delete("/{id}/desasociar-oc/{oc_id}")
 async def desasociar_oc(id: int, oc_id: int, _=Depends(get_current_user)):
     return await call_sp("sp_importacion_desasociar_oc", (id, oc_id), fetch_one=True)
+
+
+@router.delete("/{id}")
+async def eliminar(id: int, user=Depends(get_current_user)):
+    try:
+        return await call_sp("sp_importacion_eliminar", (id, user["empresa_id"]), fetch_one=True)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

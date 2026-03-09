@@ -22,7 +22,9 @@ CREATE PROCEDURE sp_movimiento_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         ma.id, ma.numero_movimiento, ma.tipo_movimiento,
@@ -43,7 +45,7 @@ BEGIN
       AND (p_fecha_hasta IS NULL OR ma.fecha_movimiento <= p_fecha_hasta)
       AND (p_estado IS NULL OR ma.estado = p_estado)
     ORDER BY ma.fecha_movimiento DESC, ma.id DESC
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
 
 CREATE PROCEDURE sp_movimiento_obtener(
@@ -424,5 +426,75 @@ BEGIN
       AND (p_fecha_hasta IS NULL OR ma.fecha_movimiento <= p_fecha_hasta)
     ORDER BY ma.fecha_movimiento, ma.id;
 END //
+
+-- ============================================================================
+-- MOVIMIENTOS: Contar
+-- ============================================================================
+CREATE PROCEDURE sp_movimiento_contar(
+    IN p_empresa_id INT,
+    IN p_tipo VARCHAR(20),
+    IN p_almacen_id INT,
+    IN p_fecha_desde DATE,
+    IN p_fecha_hasta DATE,
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM movimientos_almacen ma
+    WHERE ma.empresa_id = p_empresa_id
+      AND (p_tipo IS NULL OR ma.tipo_movimiento = p_tipo)
+      AND (p_almacen_id IS NULL OR ma.almacen_id = p_almacen_id OR ma.almacen_destino_id = p_almacen_id)
+      AND (p_fecha_desde IS NULL OR ma.fecha_movimiento >= p_fecha_desde)
+      AND (p_fecha_hasta IS NULL OR ma.fecha_movimiento <= p_fecha_hasta)
+      AND (p_estado IS NULL OR ma.estado = p_estado);
+END //
+
+
+-- ============================================================================
+-- ALMACENES: Eliminar
+-- ============================================================================
+CREATE PROCEDURE sp_almacen_eliminar(
+    IN p_id INT,
+    IN p_empresa_id INT
+)
+BEGIN
+    DECLARE v_stock INT DEFAULT 0;
+
+    SELECT COALESCE(SUM(stock_actual), 0) INTO v_stock
+    FROM inventario_stock WHERE almacen_id = p_id;
+
+    IF v_stock > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar un almacen con stock. Transfiera los productos primero.';
+    END IF;
+
+    DELETE FROM inventario_stock WHERE almacen_id = p_id;
+    DELETE FROM almacenes WHERE id = p_id AND empresa_id = p_empresa_id;
+    SELECT 'deleted' AS result;
+END //
+
+
+-- ============================================================================
+-- MOVIMIENTO ITEMS: Eliminar
+-- ============================================================================
+CREATE PROCEDURE sp_movimiento_item_eliminar(
+    IN p_movimiento_id INT,
+    IN p_item_id INT,
+    IN p_empresa_id INT
+)
+BEGIN
+    DECLARE v_estado VARCHAR(30);
+
+    SELECT ma.estado INTO v_estado
+    FROM movimientos_almacen ma
+    WHERE ma.id = p_movimiento_id AND ma.empresa_id = p_empresa_id;
+
+    IF v_estado != 'borrador' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo se pueden eliminar items de movimientos en borrador';
+    END IF;
+
+    DELETE FROM movimiento_detalle WHERE id = p_item_id AND movimiento_id = p_movimiento_id;
+    SELECT 'deleted' AS result;
+END //
+
 
 DELIMITER ;

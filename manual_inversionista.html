@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ImportCost Pro - Manual de Sistema</title>
+  <style>
+    :root {
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-50: #eff6ff;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --green-50: #f0fdf4;
+      --green-100: #dcfce7;
+      --green-600: #16a34a;
+      --green-700: #15803d;
+      --amber-50: #fffbeb;
+      --amber-100: #fef3c7;
+      --amber-600: #d97706;
+      --amber-700: #b45309;
+      --red-50: #fef2f2;
+      --red-600: #dc2626;
+      --red-700: #b91c1c;
+      --purple-50: #faf5ff;
+      --purple-600: #9333ea;
+      --purple-700: #7e22ce;
+      --orange-50: #fff7ed;
+      --orange-600: #ea580c;
+      --orange-700: #c2410c;
+      --emerald-600: #059669;
+      --cyan-600: #0891b2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      color: var(--slate-700);
+      line-height: 1.6;
+      background: #fff;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+      color: white;
+      padding: 48px 0;
+    }
+    .header-inner { display: flex; align-items: center; gap: 20px; }
+    .logo-box {
+      width: 64px; height: 64px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; flex-shrink: 0;
+    }
+    .header h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+    .header .subtitle { color: rgba(255,255,255,0.8); font-size: 16px; margin-top: 4px; }
+    .header .version {
+      display: inline-block; background: rgba(255,255,255,0.15);
+      padding: 4px 12px; border-radius: 20px; font-size: 12px;
+      margin-top: 8px;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      margin-top: 32px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .stat-card .icon { font-size: 20px; margin-bottom: 4px; }
+    .stat-card .label { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 14px; font-weight: 700; }
+
+    /* TOC */
+    .toc {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 32px 0;
+    }
+    .toc h2 { font-size: 16px; font-weight: 700; color: var(--slate-800); margin-bottom: 16px; }
+    .toc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .toc a {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--slate-600);
+      padding: 6px 10px; border-radius: 8px;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .toc a:hover { background: var(--blue-50); color: var(--blue-700); }
+    .toc-num {
+      width: 20px; height: 20px; border-radius: 6px;
+      background: var(--blue-600); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* Sections */
+    .section { margin-top: 48px; scroll-margin-top: 20px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--slate-200);
+      margin-bottom: 20px;
+    }
+    .section-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--blue-600); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 22px; font-weight: 700; color: var(--slate-800); }
+
+    .subsection { margin-top: 24px; }
+    .subsection h3 { font-size: 16px; font-weight: 600; color: var(--slate-700); margin-bottom: 12px; }
+
+    p { margin-bottom: 12px; font-size: 14px; color: var(--slate-600); }
+    strong { color: var(--slate-800); }
+
+    /* Tables */
+    .table-wrapper { overflow-x: auto; margin: 16px 0; border-radius: 10px; border: 1px solid var(--slate-200); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--slate-50); }
+    th {
+      padding: 10px 16px; text-align: left; font-weight: 600;
+      color: var(--slate-700); white-space: nowrap;
+      border-bottom: 1px solid var(--slate-200);
+    }
+    td {
+      padding: 10px 16px; border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-600);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background: rgba(248,250,252,0.5); }
+    .mono { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; }
+    .bold { font-weight: 700; color: var(--slate-800); }
+    .text-blue { color: var(--blue-700); font-weight: 700; }
+    .text-green { color: var(--green-700); font-weight: 700; }
+    .text-amber { color: var(--amber-700); font-weight: 700; }
+    .text-red { color: var(--red-700); font-weight: 700; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-blue { background: #dbeafe; color: var(--blue-700); }
+    .badge-green { background: var(--green-100); color: var(--green-700); }
+    .badge-amber { background: var(--amber-100); color: var(--amber-700); }
+    .badge-red { background: #fee2e2; color: var(--red-700); }
+    .badge-slate { background: var(--slate-100); color: var(--slate-600); }
+    .badge-purple { background: #f3e8ff; color: var(--purple-700); }
+    .badge-outline {
+      background: transparent; border: 1px solid var(--slate-300);
+      color: var(--slate-600);
+    }
+
+    /* Cards */
+    .card {
+      border: 1px solid var(--slate-200); border-radius: 12px;
+      padding: 20px; margin: 16px 0;
+      background: white;
+    }
+    .card-title { font-size: 16px; font-weight: 700; color: var(--slate-800); margin-bottom: 4px; }
+    .card-subtitle { font-size: 13px; color: var(--slate-500); }
+
+    .card-grid { display: grid; gap: 16px; margin: 16px 0; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* Metric cards */
+    .metric-card { text-align: left; }
+    .metric-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 8px; font-size: 18px;
+    }
+    .metric-value { font-size: 24px; font-weight: 800; color: var(--slate-800); }
+    .metric-label { font-size: 12px; color: var(--slate-500); }
+
+    /* Info boxes */
+    .tip {
+      display: flex; gap: 12px; padding: 16px;
+      background: var(--blue-50); border: 1px solid #bfdbfe;
+      border-radius: 10px; margin: 16px 0;
+      font-size: 13px; color: #1e40af;
+    }
+    .tip-icon { font-size: 16px; flex-shrink: 0; }
+    .warning {
+      display: flex; gap: 12px; padding: 16px;
+      background: var(--amber-50); border: 1px solid #fde68a;
+      border-radius: 10px; margin: 16px 0;
+      font-size: 13px; color: #92400e;
+    }
+
+    /* Steps */
+    .step { display: flex; gap: 12px; margin-bottom: 16px; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--blue-600); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .step-title { font-weight: 600; color: var(--slate-800); font-size: 14px; }
+    .step-desc { font-size: 13px; color: var(--slate-500); margin-top: 2px; }
+
+    /* Pipeline */
+    .pipeline {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin: 16px 0;
+    }
+    .pipeline-stage {
+      padding: 12px 16px; border-radius: 10px;
+      text-align: center; min-width: 100px;
+    }
+    .pipeline-stage .count { font-size: 22px; font-weight: 800; }
+    .pipeline-stage .label { font-size: 11px; }
+    .pipeline-arrow { color: var(--slate-300); font-size: 20px; }
+
+    /* Code block */
+    .code-block {
+      background: var(--slate-800); color: #86efac;
+      padding: 20px; border-radius: 10px; margin: 16px 0;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 12px; line-height: 1.8;
+      overflow-x: auto;
+    }
+    .code-comment { color: var(--slate-500); }
+
+    /* Flow */
+    .flow { max-width: 600px; margin: 24px auto; }
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .flow-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      color: white; display: flex; align-items: center;
+      justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .flow-content { padding-top: 6px; }
+    .flow-content .label { font-weight: 700; color: var(--slate-800); font-size: 14px; }
+    .flow-content .desc { font-size: 13px; color: var(--slate-500); }
+    .flow-line { margin-left: 20px; height: 20px; border-left: 2px solid var(--slate-300); }
+
+    /* Tributos grid */
+    .tributos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+    .tributo-card { padding: 16px; border-radius: 10px; }
+    .tributo-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tributo-value { font-size: 20px; font-weight: 800; margin-top: 4px; }
+
+    /* Tags grid */
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .tag {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--slate-200);
+      font-size: 12px; color: var(--slate-600);
+    }
+    .tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-600); }
+
+    /* Footer */
+    .footer {
+      text-align: center; padding: 48px 0;
+      border-top: 1px solid var(--slate-200);
+      margin-top: 48px;
+      color: var(--slate-400); font-size: 13px;
+    }
+    .footer .logo {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--blue-600); color: white;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px; font-size: 22px;
+    }
+    .footer .app-name { font-weight: 700; color: var(--slate-600); font-size: 15px; }
+
+    /* Print */
+    @media print {
+      .header { padding: 24px 0; }
+      .section { page-break-inside: avoid; }
+      body { font-size: 11px; }
+    }
+
+    @media (max-width: 768px) {
+      .stats-bar, .card-grid-4, .tributos-grid { grid-template-columns: repeat(2, 1fr); }
+      .toc-grid, .card-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .pipeline { flex-direction: column; align-items: stretch; }
+      .pipeline-arrow { transform: rotate(90deg); text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================== -->
+  <!-- HEADER -->
+  <!-- ================================================================== -->
+  <div class="header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo-box">&#9875;</div>
+        <div>
+          <h1>ImportCost Pro</h1>
+          <p class="subtitle">Sistema de Costeo de Importaciones para Pymes</p>
+          <span class="version">Manual de Sistema v1.0 &middot; Marzo 2026</span>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="icon">&#128230;</div>
+          <div class="label">Modulos</div>
+          <div class="value">13 modulos integrados</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">&#128202;</div>
+          <div class="label">Paginas</div>
+          <div class="value">28 pantallas funcionales</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">&#9881;</div>
+          <div class="label">Backend</div>
+          <div class="value">79 stored procedures</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon">&#128640;</div>
+          <div class="label">Stack</div>
+          <div class="value">React + FastAPI + MySQL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ================================================================== -->
+    <!-- TABLE OF CONTENTS -->
+    <!-- ================================================================== -->
+    <div class="toc">
+      <h2>Contenido</h2>
+      <div class="toc-grid">
+        <a href="#inicio"><span class="toc-num">1</span> Inicio de Sesion</a>
+        <a href="#dashboard"><span class="toc-num">2</span> Dashboard</a>
+        <a href="#proveedores"><span class="toc-num">3</span> Proveedores</a>
+        <a href="#productos"><span class="toc-num">4</span> Productos</a>
+        <a href="#ordenes"><span class="toc-num">5</span> Ordenes de Compra</a>
+        <a href="#importaciones"><span class="toc-num">6</span> Importaciones</a>
+        <a href="#gastos"><span class="toc-num">7</span> Gastos</a>
+        <a href="#documentos"><span class="toc-num">8</span> Documentos</a>
+        <a href="#prorrateo"><span class="toc-num">9</span> Prorrateo y Costeo</a>
+        <a href="#almacenes"><span class="toc-num">10</span> Almacenes</a>
+        <a href="#kardex"><span class="toc-num">11</span> Kardex SUNAT</a>
+        <a href="#reportes"><span class="toc-num">12</span> Reportes</a>
+        <a href="#flujo"><span class="toc-num">13</span> Flujo Completo</a>
+        <a href="#tech"><span class="toc-num">14</span> Stack Tecnologico</a>
+        <a href="#glosario"><span class="toc-num">15</span> Glosario</a>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 1. INICIO DE SESION -->
+    <!-- ================================================================== -->
+    <div class="section" id="inicio">
+      <div class="section-header">
+        <div class="section-icon">&#128274;</div>
+        <h2>1. Inicio de Sesion</h2>
+      </div>
+      <p>El sistema utiliza autenticacion JWT (JSON Web Token). Cada usuario pertenece a una empresa (multi-tenant) y tiene un rol asignado.</p>
+
+      <div class="subsection">
+        <h3>Roles de Usuario</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Rol</th><th>Permisos</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-purple">admin</span></td><td>Acceso total: CRUD completo, configuracion, reportes, gestion de usuarios</td></tr>
+              <tr><td><span class="badge badge-blue">usuario</span></td><td>Crear y editar registros, consultar reportes</td></tr>
+              <tr><td><span class="badge badge-slate">readonly</span></td><td>Solo lectura: consultas y reportes unicamente</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">&#128161;</span>
+        <div><strong>Seguridad multi-tenant:</strong> Cada stored procedure recibe el <code>empresa_id</code> del token JWT, garantizando aislamiento total de datos entre empresas.</div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 2. DASHBOARD -->
+    <!-- ================================================================== -->
+    <div class="section" id="dashboard">
+      <div class="section-header">
+        <div class="section-icon">&#128200;</div>
+        <h2>2. Dashboard</h2>
+      </div>
+      <p>Resumen ejecutivo de las operaciones de importacion con metricas clave y pipeline visual.</p>
+
+      <div class="card-grid card-grid-4">
+        <div class="card metric-card">
+          <div class="metric-icon" style="background: var(--blue-50); color: var(--blue-600);">&#9875;</div>
+          <div class="metric-value">8</div>
+          <div class="metric-label">Importaciones Activas</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon" style="background: var(--green-50); color: var(--green-600);">&#128176;</div>
+          <div class="metric-value">$125,430</div>
+          <div class="metric-label">FOB Total (USD)</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon" style="background: var(--amber-50); color: var(--amber-600);">&#128722;</div>
+          <div class="metric-value">12</div>
+          <div class="metric-label">OCs Pendientes</div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon" style="background: var(--red-50); color: var(--red-600);">&#128179;</div>
+          <div class="metric-value">S/ 45,200</div>
+          <div class="metric-label">Gastos del Mes</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Pipeline de Importaciones (5 etapas)</h3>
+        <div class="pipeline">
+          <div class="pipeline-stage" style="background: var(--slate-100); color: var(--slate-700);"><div class="count">2</div><div class="label">Borrador</div></div>
+          <span class="pipeline-arrow">&rarr;</span>
+          <div class="pipeline-stage" style="background: #dbeafe; color: var(--blue-700);"><div class="count">3</div><div class="label">Confirmada</div></div>
+          <span class="pipeline-arrow">&rarr;</span>
+          <div class="pipeline-stage" style="background: #cffafe; color: var(--cyan-600);"><div class="count">2</div><div class="label">En Transito</div></div>
+          <span class="pipeline-arrow">&rarr;</span>
+          <div class="pipeline-stage" style="background: var(--amber-100); color: var(--amber-700);"><div class="count">1</div><div class="label">En Aduana</div></div>
+          <span class="pipeline-arrow">&rarr;</span>
+          <div class="pipeline-stage" style="background: var(--green-100); color: var(--green-700);"><div class="count">5</div><div class="label">Liquidada</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 3. PROVEEDORES -->
+    <!-- ================================================================== -->
+    <div class="section" id="proveedores">
+      <div class="section-header">
+        <div class="section-icon">&#128101;</div>
+        <h2>3. Proveedores</h2>
+      </div>
+      <p>Gestion de proveedores internacionales con datos fiscales, moneda preferida e incoterm por defecto.</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>RUC / Tax ID</th><th>Razon Social</th><th>Pais</th><th>Moneda</th><th>Incoterm</th><th>OCs</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">20501234567</td><td class="bold">SHANGHAI TOOLS CO LTD</td><td>&#127464;&#127475; China</td><td><span class="badge badge-outline">USD</span></td><td>FOB</td><td class="bold">12</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr><td class="mono">20509876543</td><td class="bold">KOREA STEEL SUPPLIES</td><td>&#127472;&#127479; Corea del Sur</td><td><span class="badge badge-outline">USD</span></td><td>CIF</td><td class="bold">8</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr><td class="mono">B12345678</td><td class="bold">FERRAMENTAS EUROPA SL</td><td>&#127466;&#127480; Espana</td><td><span class="badge badge-outline">EUR</span></td><td>FOB</td><td class="bold">3</td><td><span class="badge badge-green">Activo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 4. PRODUCTOS -->
+    <!-- ================================================================== -->
+    <div class="section" id="productos">
+      <div class="section-header">
+        <div class="section-icon">&#128230;</div>
+        <h2>4. Productos</h2>
+      </div>
+      <p>Catalogo con clasificacion arancelaria (codigo HS), pesos y volumenes para calculo de tributos y prorrateo.</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>SKU</th><th>Nombre</th><th>Categoria</th><th>Codigo HS</th><th>Peso (kg)</th><th>Stock</th><th>Costo Landed</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">HER-001</td><td class="bold">Taladro Percutor 800W</td><td><span class="badge badge-outline">Herramientas</span></td><td class="mono">8467.21.00</td><td>2.5</td><td class="text-green">150</td><td class="text-blue">S/ 55.16</td></tr>
+            <tr><td class="mono">HER-002</td><td class="bold">Amoladora Angular 4.5"</td><td><span class="badge badge-outline">Herramientas</span></td><td class="mono">8467.29.00</td><td>1.8</td><td class="text-green">200</td><td class="text-blue">S/ 44.14</td></tr>
+            <tr><td class="mono">FER-001</td><td class="bold">Tornillo Hex M8x50 (Caja x1000)</td><td><span class="badge badge-outline">Ferreteria</span></td><td class="mono">7318.15.00</td><td>15.0</td><td class="text-amber">80</td><td class="text-blue">S/ 72.30</td></tr>
+            <tr><td class="mono">ELE-001</td><td class="bold">Cable THW 14 AWG (Rollo 100m)</td><td><span class="badge badge-outline">Electrico</span></td><td class="mono">8544.49.00</td><td>5.2</td><td class="text-green">120</td><td class="text-blue">S/ 68.50</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">&#128161;</span>
+        <div><strong>Codigo HS:</strong> Al ingresar el codigo arancelario, el sistema busca automaticamente la partida y su tasa de Ad Valorem para el calculo de tributos en la DUA.</div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 5. ORDENES DE COMPRA -->
+    <!-- ================================================================== -->
+    <div class="section" id="ordenes">
+      <div class="section-header">
+        <div class="section-icon">&#128722;</div>
+        <h2>5. Ordenes de Compra</h2>
+      </div>
+      <p>Punto de partida del proceso. Registre que compra, a quien y a que precio FOB.</p>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <div class="card-title">OC-2026-0045</div>
+            <div class="card-subtitle">SHANGHAI TOOLS CO LTD &middot; 15/02/2026</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <span class="badge badge-outline">USD</span>
+            <span class="badge badge-outline">FOB</span>
+            <span class="badge badge-blue">Confirmada</span>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Subtotal</th></tr></thead>
+            <tbody>
+              <tr><td>Taladro Percutor 800W</td><td>500</td><td>$ 22.50</td><td>$ 11,250.00</td></tr>
+              <tr><td>Amoladora Angular 4.5"</td><td>300</td><td>$ 18.00</td><td>$ 5,400.00</td></tr>
+              <tr><td class="bold">TOTAL FOB</td><td></td><td></td><td class="text-blue" style="font-size: 16px;">$ 16,650.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 6. IMPORTACIONES -->
+    <!-- ================================================================== -->
+    <div class="section" id="importaciones">
+      <div class="section-header">
+        <div class="section-icon">&#9875;</div>
+        <h2>6. Importaciones</h2>
+      </div>
+      <p>Agrupa una o varias OCs en un embarque con datos de transporte, BL, container y nave.</p>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <div class="card-title">IMP-2026-0012</div>
+            <div class="card-subtitle">Embarque Herramientas Q1 - China</div>
+          </div>
+          <span class="badge badge-amber">En Aduana</span>
+        </div>
+        <div class="card-grid card-grid-4" style="margin: 0;">
+          <div><div style="font-size: 11px; color: var(--slate-500);">Via</div><div class="bold">&#9875; Maritimo</div></div>
+          <div><div style="font-size: 11px; color: var(--slate-500);">BL</div><div class="mono" style="font-size: 11px;">COSCO2026SH0045</div></div>
+          <div><div style="font-size: 11px; color: var(--slate-500);">Container</div><div class="mono" style="font-size: 11px;">CSLU1234567</div></div>
+          <div><div style="font-size: 11px; color: var(--slate-500);">FOB Total</div><div class="text-blue">$ 28,500.00</div></div>
+        </div>
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--slate-100);">
+          <div style="font-size: 11px; color: var(--slate-500); margin-bottom: 6px;">OCs Asociadas:</div>
+          <span class="badge badge-outline mono" style="margin-right: 4px;">OC-2026-0045</span>
+          <span class="badge badge-outline mono">OC-2026-0046</span>
+        </div>
+      </div>
+
+      <div class="warning">
+        <span class="tip-icon">&#9888;</span>
+        <div><strong>Importante:</strong> Asocie las OCs a la importacion ANTES de registrar gastos y documentos. Esto permite que el prorrateo distribuya correctamente los costos.</div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 7. GASTOS -->
+    <!-- ================================================================== -->
+    <div class="section" id="gastos">
+      <div class="section-header">
+        <div class="section-icon">&#129534;</div>
+        <h2>7. Gastos de Importacion</h2>
+      </div>
+      <p>Registre todos los gastos asociados: flete, seguro, agente aduanas, almacenaje, transporte local, etc.</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Tipo de Gasto</th><th>Monto</th><th>Moneda</th><th>Comprobante</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Flete Internacional</td><td>2,850.00</td><td><span class="badge badge-outline">USD</span></td><td class="mono">FV-001-2345</td><td><span class="badge badge-green">Pagado</span></td></tr>
+            <tr><td class="bold">Seguro</td><td>285.00</td><td><span class="badge badge-outline">USD</span></td><td class="mono">POL-2026-100</td><td><span class="badge badge-green">Pagado</span></td></tr>
+            <tr><td class="bold">Almacenaje</td><td>1,200.00</td><td><span class="badge badge-outline">PEN</span></td><td class="mono">FV-004-5678</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+            <tr><td class="bold">Agente Aduanas</td><td>850.00</td><td><span class="badge badge-outline">PEN</span></td><td class="mono">FV-003-9012</td><td><span class="badge badge-green">Pagado</span></td></tr>
+            <tr><td class="bold">Transporte Local</td><td>650.00</td><td><span class="badge badge-outline">PEN</span></td><td class="mono">FV-005-3456</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3>11 Tipos de Gasto Predefinidos</h3>
+        <div class="tags">
+          <span class="tag"><span class="tag-dot"></span>Flete Internacional</span>
+          <span class="tag"><span class="tag-dot"></span>Seguro</span>
+          <span class="tag"><span class="tag-dot"></span>Agente de Aduanas</span>
+          <span class="tag"><span class="tag-dot"></span>Almacenaje</span>
+          <span class="tag"><span class="tag-dot"></span>Transporte Local</span>
+          <span class="tag"><span class="tag-dot"></span>Handling</span>
+          <span class="tag"><span class="tag-dot"></span>Comision Bancaria</span>
+          <span class="tag"><span class="tag-dot"></span>Estiba</span>
+          <span class="tag"><span class="tag-dot"></span>Inspeccion</span>
+          <span class="tag"><span class="tag-dot"></span>Documentacion</span>
+          <span class="tag"><span class="tag-dot"></span>Otros Gastos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 8. DOCUMENTOS -->
+    <!-- ================================================================== -->
+    <div class="section" id="documentos">
+      <div class="section-header">
+        <div class="section-icon">&#128196;</div>
+        <h2>8. Documentos (DUA, Facturas, Transporte)</h2>
+      </div>
+
+      <div class="subsection">
+        <h3>DUA - Declaracion Unica de Aduanas</h3>
+        <p>Documento clave para tributos de importacion. El sistema calcula automaticamente todos los tributos basado en las formulas de SUNAT.</p>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom: 16px;">DUA 235-2026-10-012345-01</div>
+          <div class="tributos-grid">
+            <div class="tributo-card" style="background: var(--slate-50);"><div class="tributo-label" style="color: var(--slate-500);">CIF (S/)</div><div class="tributo-value" style="color: var(--slate-800);">S/ 112,500</div></div>
+            <div class="tributo-card" style="background: var(--blue-50);"><div class="tributo-label" style="color: var(--blue-600);">Ad Valorem</div><div class="tributo-value" style="color: var(--blue-700);">S/ 6,750</div></div>
+            <div class="tributo-card" style="background: var(--amber-50);"><div class="tributo-label" style="color: var(--amber-600);">IGV (18%)</div><div class="tributo-value" style="color: var(--amber-700);">S/ 21,465</div></div>
+            <div class="tributo-card" style="background: var(--orange-50);"><div class="tributo-label" style="color: var(--orange-600);">IPM (2%)</div><div class="tributo-value" style="color: var(--orange-700);">S/ 2,385</div></div>
+            <div class="tributo-card" style="background: var(--purple-50);"><div class="tributo-label" style="color: var(--purple-600);">Percepcion (3.5%)</div><div class="tributo-value" style="color: var(--purple-700);">S/ 4,944</div></div>
+            <div class="tributo-card" style="background: var(--red-50);"><div class="tributo-label" style="color: var(--red-600);">TOTAL TRIBUTOS</div><div class="tributo-value" style="color: var(--red-700);">S/ 35,544</div></div>
+          </div>
+        </div>
+
+        <h3>Formulas de Calculo (SUNAT)</h3>
+        <div class="code-block">
+<span class="code-comment">// Base</span>
+CIF = FOB + Flete + Seguro
+
+<span class="code-comment">// Tributos</span>
+Ad Valorem = CIF &times; tasa_partida (ej: 6%)
+Base IGV   = CIF + Ad Valorem
+IGV        = Base IGV &times; 16%
+IPM        = Base IGV &times; 2%
+
+<span class="code-comment">// Percepcion</span>
+Base Perc   = CIF + Ad Valorem + IGV + IPM
+Percepcion  = Base Perc &times; 3.5%
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 9. PRORRATEO -->
+    <!-- ================================================================== -->
+    <div class="section" id="prorrateo">
+      <div class="section-header">
+        <div class="section-icon">&#129518;</div>
+        <h2>9. Prorrateo y Costeo</h2>
+      </div>
+      <p>El <strong>corazon del sistema</strong>. Distribuye todos los costos entre los items de las OCs para obtener el <strong>costo landed</strong> (costo real) de cada producto.</p>
+
+      <div class="subsection">
+        <h3>Proceso de 3 Pasos</h3>
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">Seleccionar Importacion</div><div class="step-desc">Elija la importacion a costear. El sistema muestra OCs asociadas y totales.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">Calcular Prorrateo</div><div class="step-desc">Seleccione metodo de distribucion. El sistema genera la propuesta sin aplicarla.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">Aplicar Prorrateo</div><div class="step-desc">Revise resultados y aplique para guardar costos prorrateados en cada item.</div></div></div>
+      </div>
+
+      <div class="subsection">
+        <h3>4 Metodos de Distribucion</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Metodo</th><th>Distribuye segun</th><th>Cuando usar</th></tr></thead>
+            <tbody>
+              <tr><td class="bold">valor_fob</td><td>Proporcion del valor FOB</td><td><span class="badge badge-green">Recomendado</span> Metodo mas comun</td></tr>
+              <tr><td class="bold">peso</td><td>Peso (kg) de cada item</td><td>Flete cobrado por peso</td></tr>
+              <tr><td class="bold">volumen</td><td>Volumen (m3) de cada item</td><td>Flete cobrado por volumen</td></tr>
+              <tr><td class="bold">cantidad</td><td>Cantidad de unidades</td><td>Items homogeneos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Resultado del Prorrateo (Ejemplo)</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Producto</th><th>FOB</th><th>%</th><th>Flete</th><th>Seguro</th><th>Tributos</th><th>Gastos</th><th>Landed</th><th>Qty</th><th>Costo/U</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="bold">Taladro Percutor 800W</td><td>$ 11,250</td><td>39.5%</td>
+                <td>$ 1,125</td><td>$ 113</td><td>S/ 14,028</td><td>S/ 1,066</td>
+                <td class="text-green">S/ 27,581</td><td>500</td><td class="text-blue">S/ 55.16</td>
+              </tr>
+              <tr>
+                <td class="bold">Amoladora Angular 4.5"</td><td>$ 5,400</td><td>18.9%</td>
+                <td>$ 540</td><td>$ 54</td><td>S/ 6,736</td><td>S/ 512</td>
+                <td class="text-green">S/ 13,241</td><td>300</td><td class="text-blue">S/ 44.14</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">&#128161;</span>
+        <div><strong>Ficha de Costeo:</strong> Reporte imprimible con desglose completo del costo landed por producto. Se entrega a contabilidad o gerencia.</div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 10. ALMACENES + INVENTARIO -->
+    <!-- ================================================================== -->
+    <div class="section" id="almacenes">
+      <div class="section-header">
+        <div class="section-icon">&#127970;</div>
+        <h2>10. Almacenes e Inventario</h2>
+      </div>
+      <p>Gestion de almacenes con stock independiente. Movimientos de ingreso, transferencia y salida.</p>
+
+      <div class="card-grid card-grid-3">
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#127970; Almacen Central</div>
+          <div style="font-size: 12px; color: var(--slate-500);">&#128205; Lima - Ate</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px;">
+            <span style="color: var(--slate-500);">45 productos</span>
+            <span class="text-green">S/ 125,000</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#127970; Deposito Callao</div>
+          <div style="font-size: 12px; color: var(--slate-500);">&#128205; Callao</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px;">
+            <span style="color: var(--slate-500);">12 productos</span>
+            <span class="text-green">S/ 42,500</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#127970; Tienda San Isidro</div>
+          <div style="font-size: 12px; color: var(--slate-500);">&#128205; Lima - San Isidro</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px;">
+            <span style="color: var(--slate-500);">28 productos</span>
+            <span class="text-green">S/ 68,200</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Tipos de Movimiento</h3>
+        <div class="card-grid card-grid-3">
+          <div class="card" style="border-color: #bbf7d0;"><span class="badge badge-green">&#11015; Ingreso</span><p style="margin-top: 8px;">Recepcion de mercaderia con costo landed del prorrateo.</p></div>
+          <div class="card" style="border-color: #bfdbfe;"><span class="badge badge-blue">&#8644; Transferencia</span><p style="margin-top: 8px;">Movimiento entre almacenes propios.</p></div>
+          <div class="card" style="border-color: #fecaca;"><span class="badge badge-red">&#11014; Salida</span><p style="margin-top: 8px;">Despacho o venta. Reduce stock del almacen.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 11. KARDEX -->
+    <!-- ================================================================== -->
+    <div class="section" id="kardex">
+      <div class="section-header">
+        <div class="section-icon">&#128214;</div>
+        <h2>11. Kardex SUNAT</h2>
+      </div>
+      <p>Registro de Inventario Permanente Valorizado en formato requerido por SUNAT. Entradas, salidas y saldos valorados.</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th><th>Tipo</th><th>Doc</th>
+              <th>Entrada Qty</th><th>Entrada C/U</th><th>Entrada Total</th>
+              <th>Salida Qty</th><th>Salida C/U</th><th>Salida Total</th>
+              <th>Saldo Qty</th><th>Saldo C/U</th><th>Saldo Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>05/03/2026</td><td><span class="badge badge-green">INGRESO</span></td><td class="mono">MOV-001</td>
+              <td>500</td><td>S/ 55.16</td><td>S/ 27,580</td>
+              <td>-</td><td>-</td><td>-</td>
+              <td class="bold">500</td><td>S/ 55.16</td><td class="text-blue">S/ 27,580</td>
+            </tr>
+            <tr>
+              <td>07/03/2026</td><td><span class="badge badge-red">SALIDA</span></td><td class="mono">MOV-003</td>
+              <td>-</td><td>-</td><td>-</td>
+              <td>50</td><td>S/ 55.16</td><td>S/ 2,758</td>
+              <td class="bold">450</td><td>S/ 55.16</td><td class="text-blue">S/ 24,822</td>
+            </tr>
+            <tr>
+              <td>10/03/2026</td><td><span class="badge badge-green">INGRESO</span></td><td class="mono">MOV-005</td>
+              <td>200</td><td>S/ 52.30</td><td>S/ 10,460</td>
+              <td>-</td><td>-</td><td>-</td>
+              <td class="bold">650</td><td>S/ 54.28</td><td class="text-blue">S/ 35,282</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 12. REPORTES -->
+    <!-- ================================================================== -->
+    <div class="section" id="reportes">
+      <div class="section-header">
+        <div class="section-icon">&#128202;</div>
+        <h2>12. Reportes</h2>
+      </div>
+      <div class="card-grid card-grid-3">
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#128197; Resumen Mensual</div>
+          <p>Total FOB, CIF, tributos y gastos agrupados por mes. Analisis de tendencias.</p>
+        </div>
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#128101; Por Proveedor</div>
+          <p>Comparativo de costos: FOB promedio, tiempo de entrega, frecuencia de compra.</p>
+        </div>
+        <div class="card">
+          <div class="bold" style="margin-bottom: 4px;">&#128230; Por Producto</div>
+          <p>Evolucion del costo landed. Identifique variaciones y tendencias de precio.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 13. FLUJO COMPLETO -->
+    <!-- ================================================================== -->
+    <div class="section" id="flujo">
+      <div class="section-header">
+        <div class="section-icon">&#128736;</div>
+        <h2>13. Flujo Completo de Importacion</h2>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step"><div class="flow-icon" style="background: var(--slate-600);">&#9881;</div><div class="flow-content"><div class="label">1. Configuracion Inicial</div><div class="desc">Registrar proveedores, productos, almacenes</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--blue-600);">&#128722;</div><div class="flow-content"><div class="label">2. Crear Orden de Compra</div><div class="desc">Seleccionar proveedor, agregar items, precio FOB</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--cyan-600);">&#9875;</div><div class="flow-content"><div class="label">3. Crear Importacion</div><div class="desc">Datos de embarque: BL, container, via transporte</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: #4f46e5;">&#128203;</div><div class="flow-content"><div class="label">4. Asociar OCs a Importacion</div><div class="desc">Vincular ordenes de compra al embarque</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--amber-600);">&#129534;</div><div class="flow-content"><div class="label">5. Registrar Gastos</div><div class="desc">Flete, seguro, agente, almacenaje, transporte local</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--orange-600);">&#128196;</div><div class="flow-content"><div class="label">6. Registrar DUA + Documentos</div><div class="desc">Numero DUA, items, calculo automatico de tributos</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--red-600);">&#129518;</div><div class="flow-content"><div class="label">7. Ejecutar Prorrateo</div><div class="desc">Distribuir costos entre items por metodo elegido</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: #db2777;">&#128065;</div><div class="flow-content"><div class="label">8. Revisar Ficha de Costeo</div><div class="desc">Verificar costo landed por producto</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--green-600);">&#11015;</div><div class="flow-content"><div class="label">9. Ingreso a Almacen</div><div class="desc">Crear movimiento de ingreso con costo landed</div></div></div>
+        <div class="flow-line"></div>
+        <div class="flow-step"><div class="flow-icon" style="background: var(--emerald-600);">&#128214;</div><div class="flow-content"><div class="label">10. Consultar Kardex</div><div class="desc">Verificar stock valorizado formato SUNAT</div></div></div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 14. STACK TECNOLOGICO -->
+    <!-- ================================================================== -->
+    <div class="section" id="tech">
+      <div class="section-header">
+        <div class="section-icon">&#128187;</div>
+        <h2>14. Stack Tecnologico</h2>
+      </div>
+
+      <div class="card-grid card-grid-2">
+        <div class="card">
+          <div class="bold" style="margin-bottom: 12px;">&#127912; Frontend</div>
+          <div class="tags">
+            <span class="tag">React 18</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">Vite</span>
+            <span class="tag">TailwindCSS v4</span>
+            <span class="tag">shadcn/ui</span>
+            <span class="tag">TanStack Query</span>
+            <span class="tag">React Router v6</span>
+            <span class="tag">Axios</span>
+            <span class="tag">Lucide Icons</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bold" style="margin-bottom: 12px;">&#9881; Backend</div>
+          <div class="tags">
+            <span class="tag">FastAPI</span>
+            <span class="tag">Python 3.13</span>
+            <span class="tag">MySQL 5.7+</span>
+            <span class="tag">aiomysql (async)</span>
+            <span class="tag">JWT Auth</span>
+            <span class="tag">Pydantic v2</span>
+            <span class="tag">79 Stored Procedures</span>
+            <span class="tag">30 Tablas</span>
+            <span class="tag">6 Vistas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Arquitectura</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Caracteristica</th><th>Detalle</th></tr></thead>
+            <tbody>
+              <tr><td class="bold">Multi-tenant</td><td>Aislamiento por empresa_id en cada SP, extraido del JWT</td></tr>
+              <tr><td class="bold">Async I/O</td><td>Pool de conexiones async (aiomysql) para alta concurrencia</td></tr>
+              <tr><td class="bold">Logica en DB</td><td>79 stored procedures - logica de negocio en la base de datos</td></tr>
+              <tr><td class="bold">API RESTful</td><td>12 routers FastAPI con 70+ endpoints</td></tr>
+              <tr><td class="bold">SPA</td><td>28 paginas React con routing client-side</td></tr>
+              <tr><td class="bold">Despliegue</td><td>Listo para VPS/local (no depende de servicios cloud)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 15. GLOSARIO -->
+    <!-- ================================================================== -->
+    <div class="section" id="glosario">
+      <div class="section-header">
+        <div class="section-icon">&#10067;</div>
+        <h2>15. Glosario</h2>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Termino</th><th>Definicion</th></tr></thead>
+          <tbody>
+            <tr><td class="bold mono">FOB</td><td>Free On Board - Precio de la mercancia puesta en el puerto de origen</td></tr>
+            <tr><td class="bold mono">CIF</td><td>Cost, Insurance & Freight - FOB + Flete + Seguro</td></tr>
+            <tr><td class="bold mono">DUA</td><td>Declaracion Unica de Aduanas - Documento de despacho aduanero peruano</td></tr>
+            <tr><td class="bold mono">Ad Valorem</td><td>Arancel de importacion calculado sobre el CIF segun partida arancelaria</td></tr>
+            <tr><td class="bold mono">IGV</td><td>Impuesto General a las Ventas (18% = 16% IGV + 2% IPM)</td></tr>
+            <tr><td class="bold mono">IPM</td><td>Impuesto de Promocion Municipal (2%)</td></tr>
+            <tr><td class="bold mono">Percepcion</td><td>Pago adelantado de IGV (3.5% sobre CIF + tributos)</td></tr>
+            <tr><td class="bold mono">Incoterm</td><td>Termino de comercio internacional (FOB, CIF, EXW, CFR, etc.)</td></tr>
+            <tr><td class="bold mono">BL</td><td>Bill of Lading - Conocimiento de embarque maritimo</td></tr>
+            <tr><td class="bold mono">Partida Arancelaria</td><td>Codigo HS de 10 digitos que clasifica la mercancia para tributos</td></tr>
+            <tr><td class="bold mono">Prorrateo</td><td>Distribucion proporcional de costos entre items importados</td></tr>
+            <tr><td class="bold mono">Costo Landed</td><td>Costo total real: FOB + todos los gastos prorrateados</td></tr>
+            <tr><td class="bold mono">Kardex</td><td>Registro de inventario permanente valorizado (requerido por SUNAT)</td></tr>
+            <tr><td class="bold mono">TLC</td><td>Tratado de Libre Comercio - Puede reducir/eliminar el Ad Valorem</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- FOOTER -->
+    <!-- ================================================================== -->
+    <div class="footer">
+      <div class="logo">&#9875;</div>
+      <div class="app-name">ImportCost Pro v1.0</div>
+      <p>Sistema de Costeo de Importaciones para Pymes - Peru</p>
+      <p style="margin-top: 8px; font-size: 12px;">Documento confidencial &middot; Marzo 2026</p>
+    </div>
+
+  </div>
+</body>
+</html>

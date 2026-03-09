@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from ..database import call_sp
 from ..auth import get_current_user
 
@@ -36,10 +36,24 @@ async def listar_movimientos(
     per_page: int = 20,
     user=Depends(get_current_user),
 ):
-    return await call_sp(
+    items = await call_sp(
         "sp_movimiento_listar",
         (user["empresa_id"], tipo, almacen_id, fecha_desde, fecha_hasta, estado, page, per_page),
     )
+    count_result = await call_sp(
+        "sp_movimiento_contar",
+        (user["empresa_id"], tipo, almacen_id, fecha_desde, fecha_hasta, estado),
+        fetch_one=True,
+    )
+    total = count_result["total"] if count_result else 0
+    import math
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "pages": math.ceil(total / per_page) if per_page > 0 else 0,
+    }
 
 
 @router.get("/movimientos/{id}")
@@ -87,12 +101,110 @@ async def agregar_item(id: int, data: dict, _=Depends(get_current_user)):
     )
 
 
+@router.delete("/movimientos/{id}/items/{item_id}")
+async def eliminar_item(id: int, item_id: int, user=Depends(get_current_user)):
+    try:
+        return await call_sp(
+            "sp_movimiento_item_eliminar",
+            (id, item_id, user["empresa_id"]),
+            fetch_one=True,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.post("/movimientos/{id}/completar")
 async def completar(id: int, user=Depends(get_current_user)):
     return await call_sp(
         "sp_movimiento_completar",
         (id, user["empresa_id"], user["user_id"]),
         fetch_one=True,
+    )
+
+
+# --- Stock Avanzado ---
+@router.get("/stock/resumen")
+async def stock_resumen(user=Depends(get_current_user)):
+    result = await call_sp("sp_stock_resumen", (user["empresa_id"],), fetch_one=True)
+    return result
+
+
+@router.get("/stock/por-almacen")
+async def stock_por_almacen(user=Depends(get_current_user)):
+    return await call_sp("sp_stock_por_almacen", (user["empresa_id"],))
+
+
+# --- Alertas de Stock ---
+@router.get("/alertas")
+async def alertas_stock(
+    almacen_id: int | None = None,
+    nivel: str | None = None,
+    search: str | None = None,
+    page: int = 1,
+    per_page: int = 50,
+    user=Depends(get_current_user),
+):
+    return await call_sp(
+        "sp_alertas_stock",
+        (user["empresa_id"], almacen_id, nivel, search, page, per_page),
+    )
+
+
+@router.get("/alertas/resumen")
+async def alertas_resumen(
+    almacen_id: int | None = None,
+    user=Depends(get_current_user),
+):
+    result = await call_sp(
+        "sp_alertas_stock_resumen",
+        (user["empresa_id"], almacen_id),
+        fetch_one=True,
+    )
+    return result
+
+
+# --- Inventario Valorizado ---
+@router.get("/valorizado")
+async def inventario_valorizado(
+    almacen_id: int | None = None,
+    categoria_id: int | None = None,
+    moneda: str = "PEN",
+    tipo_cambio: float | None = None,
+    search: str | None = None,
+    page: int = 1,
+    per_page: int = 50,
+    user=Depends(get_current_user),
+):
+    import math
+    items = await call_sp(
+        "sp_inventario_valorizado",
+        (user["empresa_id"], almacen_id, categoria_id, moneda, tipo_cambio, search, page, per_page),
+    )
+    count_result = await call_sp(
+        "sp_inventario_valorizado_contar",
+        (user["empresa_id"], almacen_id, categoria_id, search),
+        fetch_one=True,
+    )
+    total = count_result["total"] if count_result else 0
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "pages": math.ceil(total / per_page) if per_page > 0 else 0,
+    }
+
+
+@router.get("/valorizado/por-familia")
+async def valorizado_por_familia(
+    almacen_id: int | None = None,
+    moneda: str = "PEN",
+    tipo_cambio: float | None = None,
+    user=Depends(get_current_user),
+):
+    return await call_sp(
+        "sp_inventario_valorizado_por_familia",
+        (user["empresa_id"], almacen_id, moneda, tipo_cambio),
     )
 
 

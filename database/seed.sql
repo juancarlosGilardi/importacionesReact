@@ -166,7 +166,7 @@ VALUES ('20100000001', 'EMPRESA DEMO SAC', 'ImportDemo', 'admin@importdemo.pe',
 -- Usuario admin de prueba (password: admin123 - bcrypt hash)
 INSERT INTO usuarios (empresa_id, email, password_hash, nombre, apellido, rol)
 VALUES (1, 'admin@importdemo.pe',
-        '$2b$12$LJ3m4ys3GZfHOiXOhCyMreX4V3AMNXQ3Obcz0ejH5VbqZu6Cy6Giy',
+        '$2b$12$U3JJR./ZVlzYXMQitz5VBOEWXVb5/95muORQIqFxZyG7dBFvryI6y',
         'Admin', 'Demo', 'admin');
 
 -- Almacen principal de demo

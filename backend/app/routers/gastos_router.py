@@ -19,6 +19,15 @@ async def listar(
     )
 
 
+@router.get("/{id}")
+async def obtener(id: int, user=Depends(get_current_user)):
+    result = await call_sp("sp_gasto_obtener", (id, user["empresa_id"]), fetch_one=True)
+    if not result:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Gasto no encontrado")
+    return result
+
+
 @router.post("/")
 async def crear(data: dict, user=Depends(get_current_user)):
     return await call_sp(

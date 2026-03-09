@@ -340,7 +340,7 @@ CREATE TABLE importaciones (
     empresa_id              INT NOT NULL,
     numero_importacion      VARCHAR(20) NOT NULL,
     descripcion             VARCHAR(200) NOT NULL,
-    fecha_creacion          DATE NOT NULL DEFAULT (CURDATE()),
+    fecha_creacion          DATE NOT NULL,
     -- Transporte
     bl_number               VARCHAR(100),
     container_number        VARCHAR(50),

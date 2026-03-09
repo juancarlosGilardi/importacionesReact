@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from ..database import call_sp, pool
+from .. import database
 from ..auth import hash_password, verify_password, create_token, get_current_user
 from ..schemas.auth import LoginRequest, RegisterRequest, TokenResponse
 import aiomysql
@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.post("/login", response_model=TokenResponse)
 async def login(req: LoginRequest):
-    async with pool.acquire() as conn:
+    async with database.pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute(
                 "SELECT u.*, e.razon_social AS empresa_nombre "
@@ -48,7 +48,7 @@ async def login(req: LoginRequest):
 async def register(req: RegisterRequest):
     hashed = hash_password(req.password)
 
-    async with pool.acquire() as conn:
+    async with database.pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute("SELECT id FROM usuarios WHERE email = %s", (req.email,))
             if await cur.fetchone():
@@ -82,7 +82,7 @@ async def register(req: RegisterRequest):
 
 @router.get("/me")
 async def me(user=Depends(get_current_user)):
-    async with pool.acquire() as conn:
+    async with database.pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute(
                 "SELECT u.id, u.email, u.nombre, u.apellido, u.rol, u.empresa_id, "

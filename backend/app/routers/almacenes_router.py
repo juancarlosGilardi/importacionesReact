@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from ..database import call_sp
 from ..auth import get_current_user
 
@@ -31,3 +31,11 @@ async def actualizar(id: int, data: dict, user=Depends(get_current_user)):
         (id, user["empresa_id"], data.get("codigo"), data.get("nombre"), data.get("responsable"), data.get("direccion"), data.get("notas"), data.get("status")),
         fetch_one=True,
     )
+
+
+@router.delete("/{id}")
+async def eliminar(id: int, user=Depends(get_current_user)):
+    try:
+        return await call_sp("sp_almacen_eliminar", (id, user["empresa_id"]), fetch_one=True)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

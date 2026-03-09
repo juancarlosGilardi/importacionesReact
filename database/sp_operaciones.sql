@@ -22,7 +22,9 @@ CREATE PROCEDURE sp_oc_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         oc.id, oc.numero_oc, oc.fecha_orden, oc.fecha_llegada_est,
@@ -50,7 +52,7 @@ BEGIN
            OR oc.numero_oc LIKE CONCAT('%', p_search, '%')
            OR p.razon_social LIKE CONCAT('%', p_search, '%'))
     ORDER BY ei.orden, oc.fecha_orden DESC
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
 
 CREATE PROCEDURE sp_oc_contar(
@@ -284,7 +286,9 @@ CREATE PROCEDURE sp_importacion_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         i.id, i.numero_importacion, i.descripcion, i.fecha_creacion,
@@ -306,7 +310,7 @@ BEGIN
            OR i.descripcion LIKE CONCAT('%', p_search, '%')
            OR i.bl_number LIKE CONCAT('%', p_search, '%'))
     ORDER BY i.fecha_creacion DESC
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
 
 CREATE PROCEDURE sp_importacion_contar(
@@ -515,5 +519,36 @@ BEGIN
         WHERE io.importacion_id = p_importacion_id;
     END IF;
 END //
+
+-- ============================================================================
+-- IMPORTACIONES: Eliminar
+-- ============================================================================
+CREATE PROCEDURE sp_importacion_eliminar(
+    IN p_id INT,
+    IN p_empresa_id INT
+)
+BEGIN
+    DECLARE v_estado VARCHAR(30);
+    DECLARE v_ocs INT DEFAULT 0;
+
+    SELECT estado INTO v_estado FROM importaciones WHERE id = p_id AND empresa_id = p_empresa_id;
+
+    IF v_estado IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Importacion no encontrada';
+    END IF;
+
+    IF v_estado NOT IN ('borrador', 'cancelada') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Solo se pueden eliminar importaciones en estado borrador o cancelada';
+    END IF;
+
+    SELECT COUNT(*) INTO v_ocs FROM importacion_ocs WHERE importacion_id = p_id;
+    IF v_ocs > 0 THEN
+        DELETE FROM importacion_ocs WHERE importacion_id = p_id;
+    END IF;
+
+    DELETE FROM importaciones WHERE id = p_id AND empresa_id = p_empresa_id;
+    SELECT 'deleted' AS result;
+END //
+
 
 DELIMITER ;

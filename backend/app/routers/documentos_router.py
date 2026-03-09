@@ -14,10 +14,24 @@ async def listar_dua(
     per_page: int = 20,
     user=Depends(get_current_user),
 ):
-    return await call_sp(
+    items = await call_sp(
         "sp_dua_listar",
         (user["empresa_id"], importacion_id, estado, page, per_page),
     )
+    count_result = await call_sp(
+        "sp_dua_contar",
+        (user["empresa_id"], importacion_id, estado),
+        fetch_one=True,
+    )
+    total = count_result["total"] if count_result else 0
+    import math
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "pages": math.ceil(total / per_page) if per_page > 0 else 0,
+    }
 
 
 @router.get("/dua/{id}")
@@ -89,6 +103,15 @@ async def listar_transporte(importacion_id: int | None = None, user=Depends(get_
     return await call_sp("sp_doc_transporte_listar", (user["empresa_id"], importacion_id))
 
 
+@router.get("/transporte/{id}")
+async def obtener_transporte(id: int, user=Depends(get_current_user)):
+    result = await call_sp("sp_doc_transporte_obtener", (id, user["empresa_id"]), fetch_one=True)
+    if not result:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Documento de transporte no encontrado")
+    return result
+
+
 @router.post("/transporte")
 async def crear_transporte(data: dict, user=Depends(get_current_user)):
     return await call_sp(
@@ -131,10 +154,24 @@ async def listar_facturas(
     per_page: int = 20,
     user=Depends(get_current_user),
 ):
-    return await call_sp(
+    items = await call_sp(
         "sp_factura_listar",
         (user["empresa_id"], oc_id, proveedor_id, estado, page, per_page),
     )
+    count_result = await call_sp(
+        "sp_factura_contar",
+        (user["empresa_id"], oc_id, proveedor_id, estado),
+        fetch_one=True,
+    )
+    total = count_result["total"] if count_result else 0
+    import math
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "pages": math.ceil(total / per_page) if per_page > 0 else 0,
+    }
 
 
 @router.get("/facturas/{id}")
@@ -157,6 +194,20 @@ async def crear_factura(data: dict, user=Depends(get_current_user)):
             data.get("subtotal"), data.get("impuesto"), data.get("total"),
             data.get("xml_file_path"), data.get("xml_hash"),
             data.get("archivo_pdf"), data.get("notas"), user["user_id"],
+        ),
+        fetch_one=True,
+    )
+
+
+@router.put("/facturas/{id}")
+async def actualizar_factura(id: int, data: dict, user=Depends(get_current_user)):
+    return await call_sp(
+        "sp_factura_actualizar",
+        (
+            id, user["empresa_id"], data.get("oc_id"), data.get("proveedor_id"),
+            data.get("fecha_factura"), data.get("moneda_id"), data.get("tipo_cambio"),
+            data.get("subtotal"), data.get("impuesto"), data.get("total"),
+            data.get("notas"), user["user_id"],
         ),
         fetch_one=True,
     )

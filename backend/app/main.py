@@ -16,6 +16,12 @@ from .routers import (
     prorrateo_router,
     almacenes_router,
     inventario_router,
+    vales_router,
+    requerimientos_router,
+    toma_inventario_router,
+    reportes_avanzados_router,
+    usuarios_router,
+    configuracion_router,
 )
 
 
@@ -54,6 +60,12 @@ app.include_router(documentos_router.router, prefix="/api/documentos", tags=["Do
 app.include_router(prorrateo_router.router, prefix="/api/prorrateo", tags=["Prorrateo"])
 app.include_router(almacenes_router.router, prefix="/api/almacenes", tags=["Almacenes"])
 app.include_router(inventario_router.router, prefix="/api/inventario", tags=["Inventario"])
+app.include_router(vales_router.router, prefix="/api/vales", tags=["Vales"])
+app.include_router(requerimientos_router.router, prefix="/api/requerimientos", tags=["Requerimientos"])
+app.include_router(toma_inventario_router.router, prefix="/api/toma-inventario", tags=["Toma Inventario"])
+app.include_router(reportes_avanzados_router.router, prefix="/api/reportes", tags=["Reportes Avanzados"])
+app.include_router(usuarios_router.router, prefix="/api/usuarios", tags=["Usuarios"])
+app.include_router(configuracion_router.router, prefix="/api/configuracion", tags=["Configuracion"])
 
 
 @app.get("/api/health")

@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImportCost Pro - Demo Interactivo</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; margin: 0; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .sidebar-item { transition: all 0.15s ease; }
+    .sidebar-item:hover { background: rgba(255,255,255,0.1); }
+    .sidebar-item.active { background: rgba(37,99,235,0.3); border-right: 3px solid #3b82f6; }
+    input:focus, select:focus { outline: none; box-shadow: 0 0 0 2px rgba(37,99,235,0.3); }
+    table tr:hover td { background: #f8fafc; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .card-hover { transition: all 0.2s ease; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect } = React;
+
+/* ============================================================
+   MOCK DATA
+   ============================================================ */
+const PROVEEDORES = [
+  { id:1, ruc:'20600112233', razon:'Zhejiang Huayu Tools Co., Ltd.', pais:'China', moneda:'USD', incoterm:'FOB', ocs:5, estado:'activo' },
+  { id:2, ruc:'20600445566', razon:'Korea Power Instruments Inc.', pais:'Corea del Sur', moneda:'USD', incoterm:'CIF', ocs:3, estado:'activo' },
+  { id:3, ruc:'20600778899', razon:'Ferreteria Industrial Espanola S.L.', pais:'Espana', moneda:'EUR', incoterm:'EXW', ocs:2, estado:'activo' },
+  { id:4, ruc:'20601001122', razon:'American Tools Distribution LLC', pais:'USA', moneda:'USD', incoterm:'FOB', ocs:4, estado:'inactivo' },
+  { id:5, ruc:'20601334455', razon:'Guangdong Electric Supply Co.', pais:'China', moneda:'USD', incoterm:'FOB', ocs:3, estado:'activo' },
+];
+
+const PRODUCTOS = [
+  { id:1, sku:'HER-TAL-001', nombre:'Taladro Percutor 800W', categoria:'Herramientas', hs:'8467.21.00', peso:3.2, stock:145, landed:185.40 },
+  { id:2, sku:'HER-AMO-002', nombre:'Amoladora Angular 4.5"', categoria:'Herramientas', hs:'8467.29.00', peso:2.1, stock:82, landed:92.50 },
+  { id:3, sku:'FER-CER-003', nombre:'Cerradura Digital Biometrica', categoria:'Cerrajeria', hs:'8301.40.00', peso:1.5, stock:15, landed:145.80 },
+  { id:4, sku:'ELE-CAB-004', nombre:'Cable THHN 14 AWG (100m)', categoria:'Electricos', hs:'8544.49.00', peso:8.5, stock:230, landed:48.20 },
+  { id:5, sku:'HER-SIE-005', nombre:'Sierra Circular 7 1/4" 1400W', categoria:'Herramientas', hs:'8467.22.00', peso:4.8, stock:5, landed:210.60 },
+  { id:6, sku:'ELE-INT-006', nombre:'Interruptor Termomagnetico 32A', categoria:'Electricos', hs:'8536.20.00', peso:0.3, stock:520, landed:12.90 },
+];
+
+const ORDENES = [
+  { id:1, numero:'OC-2026-0045', proveedor:'Zhejiang Huayu Tools Co., Ltd.', fecha:'2026-01-15', moneda:'USD', incoterm:'FOB', estado:'liquidada', items:[
+    { producto:'Taladro Percutor 800W', cantidad:200, precio:62.50, subtotal:12500 },
+    { producto:'Amoladora Angular 4.5"', cantidad:150, precio:35.00, subtotal:5250 },
+  ]},
+  { id:2, numero:'OC-2026-0051', proveedor:'Korea Power Instruments Inc.', fecha:'2026-02-03', moneda:'USD', incoterm:'CIF', estado:'en_transito', items:[
+    { producto:'Sierra Circular 7 1/4" 1400W', cantidad:100, precio:88.00, subtotal:8800 },
+  ]},
+  { id:3, numero:'OC-2026-0058', proveedor:'Ferreteria Industrial Espanola S.L.', fecha:'2026-02-18', moneda:'EUR', incoterm:'EXW', estado:'confirmada', items:[
+    { producto:'Cerradura Digital Biometrica', cantidad:300, precio:52.00, subtotal:15600 },
+  ]},
+  { id:4, numero:'OC-2026-0063', proveedor:'Guangdong Electric Supply Co.', fecha:'2026-03-01', moneda:'USD', incoterm:'FOB', estado:'borrador', items:[
+    { producto:'Cable THHN 14 AWG (100m)', cantidad:500, precio:18.50, subtotal:9250 },
+    { producto:'Interruptor Termomagnetico 32A', cantidad:1000, precio:4.80, subtotal:4800 },
+  ]},
+  { id:5, numero:'OC-2026-0067', proveedor:'American Tools Distribution LLC', fecha:'2026-03-05', moneda:'USD', incoterm:'FOB', estado:'confirmada', items:[
+    { producto:'Taladro Percutor 800W', cantidad:100, precio:65.00, subtotal:6500 },
+    { producto:'Sierra Circular 7 1/4" 1400W', cantidad:50, precio:92.00, subtotal:4600 },
+  ]},
+];
+
+const IMPORTACIONES = [
+  { id:1, numero:'IMP-2026-0012', via:'maritimo', bl:'COSU6278451230', container:'TCLU2345678', nave:'MSC AURORA', ocs:['OC-2026-0045'], estado:'liquidada', fob:17750, flete:1850, seguro:266.25, tributos:6823.50, gastos:2450 },
+  { id:2, numero:'IMP-2026-0018', via:'maritimo', bl:'HDMU7391026540', container:'MSKU8912345', nave:'EVER GIVEN', ocs:['OC-2026-0051'], estado:'en_transito', fob:8800, flete:1200, seguro:132, tributos:0, gastos:800 },
+  { id:3, numero:'IMP-2026-0023', via:'aereo', bl:'AWB 074-12345678', container:'N/A', nave:'LATAM CARGO', ocs:['OC-2026-0058'], estado:'en_aduana', fob:15600, flete:3200, seguro:234, tributos:5180, gastos:1600 },
+  { id:4, numero:'IMP-2026-0028', via:'maritimo', bl:'OOLU5519837260', container:'CMAU6781234', nave:'COSCO PRIDE', ocs:['OC-2026-0063','OC-2026-0067'], estado:'borrador', fob:25150, flete:2100, seguro:377.25, tributos:0, gastos:0 },
+];
+
+const GASTOS = [
+  { id:1, tipo:'flete_internacional', desc:'Flete maritimo Shanghai-Callao (IMP-0012)', monto:1850.00, moneda:'USD', comprobante:'FT-001-0234', estado:'pagado' },
+  { id:2, tipo:'seguro', desc:'Seguro de carga maritimo (IMP-0012)', monto:266.25, moneda:'USD', comprobante:'POL-2026-0891', estado:'pagado' },
+  { id:3, tipo:'agente_aduana', desc:'Honorarios agente aduanero Palacios', monto:1200.00, moneda:'PEN', comprobante:'FT-020-1456', estado:'pagado' },
+  { id:4, tipo:'almacenaje', desc:'Almacenaje DP World 15 dias', monto:850.00, moneda:'USD', comprobante:'FT-100-0789', estado:'pendiente' },
+  { id:5, tipo:'transporte_local', desc:'Transporte Callao - Almacen Central', monto:1500.00, moneda:'PEN', comprobante:'FT-045-2341', estado:'pagado' },
+  { id:6, tipo:'flete_internacional', desc:'Flete aereo Madrid-Lima (IMP-0023)', monto:3200.00, moneda:'USD', comprobante:'AWB-0023-FT', estado:'pendiente' },
+  { id:7, tipo:'handling', desc:'Handling aeroportuario LAP', monto:450.00, moneda:'USD', comprobante:'FT-200-0112', estado:'pendiente' },
+  { id:8, tipo:'otros', desc:'Certificado de origen - Camara de Comercio', monto:350.00, moneda:'PEN', comprobante:'REC-CC-0045', estado:'pagado' },
+];
+
+const ALMACENES = [
+  { id:1, nombre:'Almacen Central', ubicacion:'Ate, Lima', capacidad:85, productos:12 },
+  { id:2, nombre:'Deposito Callao', ubicacion:'Callao', capacidad:45, productos:6 },
+  { id:3, nombre:'Tienda San Isidro', ubicacion:'San Isidro, Lima', capacidad:30, productos:8 },
+];
+
+const INVENTARIO = [
+  { almacen:'Almacen Central', producto:'Taladro Percutor 800W', stock:120, minimo:50, maximo:300 },
+  { almacen:'Almacen Central', producto:'Amoladora Angular 4.5"', stock:60, minimo:30, maximo:200 },
+  { almacen:'Almacen Central', producto:'Cable THHN 14 AWG (100m)', stock:180, minimo:100, maximo:500 },
+  { almacen:'Deposito Callao', producto:'Sierra Circular 7 1/4"', stock:5, minimo:20, maximo:100 },
+  { almacen:'Deposito Callao', producto:'Interruptor Termomagnetico', stock:400, minimo:200, maximo:1000 },
+  { almacen:'Tienda San Isidro', producto:'Taladro Percutor 800W', stock:25, minimo:10, maximo:50 },
+  { almacen:'Tienda San Isidro', producto:'Cerradura Digital', stock:15, minimo:5, maximo:40 },
+  { almacen:'Tienda San Isidro', producto:'Amoladora Angular 4.5"', stock:22, minimo:10, maximo:40 },
+];
+
+const KARDEX_DATA = [
+  { fecha:'2026-01-20', tipo:'INGRESO', doc:'IMP-2026-0012', eQty:200, eCu:62.50, eTotal:12500, sQty:0, sCu:0, sTotal:0 },
+  { fecha:'2026-01-25', tipo:'SALIDA', doc:'GR-2026-0101', eQty:0, eCu:0, eTotal:0, sQty:30, sCu:62.50, sTotal:1875 },
+  { fecha:'2026-02-02', tipo:'SALIDA', doc:'GR-2026-0115', eQty:0, eCu:0, eTotal:0, sQty:15, sCu:62.50, sTotal:937.50 },
+  { fecha:'2026-02-10', tipo:'INGRESO', doc:'TRANS-0023', eQty:50, eCu:65.00, eTotal:3250, sQty:0, sCu:0, sTotal:0 },
+  { fecha:'2026-02-15', tipo:'SALIDA', doc:'GR-2026-0134', eQty:0, eCu:0, eTotal:0, sQty:40, sCu:63.33, sTotal:2533.33 },
+  { fecha:'2026-02-22', tipo:'SALIDA', doc:'GR-2026-0148', eQty:0, eCu:0, eTotal:0, sQty:25, sCu:63.33, sTotal:1583.33 },
+  { fecha:'2026-03-01', tipo:'INGRESO', doc:'IMP-2026-0028', eQty:100, eCu:65.00, eTotal:6500, sQty:0, sCu:0, sTotal:0 },
+  { fecha:'2026-03-05', tipo:'SALIDA', doc:'GR-2026-0167', eQty:0, eCu:0, eTotal:0, sQty:20, sCu:64.38, sTotal:1287.50 },
+  { fecha:'2026-03-08', tipo:'SALIDA', doc:'GR-2026-0172', eQty:0, eCu:0, eTotal:0, sQty:100, sCu:64.38, sTotal:6437.50 },
+];
+
+/* ============================================================
+   HELPER COMPONENTS
+   ============================================================ */
+const Badge = ({ text, color }) => {
+  const colors = {
+    green:'bg-emerald-100 text-emerald-700', amber:'bg-amber-100 text-amber-700',
+    blue:'bg-blue-100 text-blue-700', red:'bg-red-100 text-red-700',
+    purple:'bg-purple-100 text-purple-700', gray:'bg-gray-100 text-gray-600',
+    indigo:'bg-indigo-100 text-indigo-700', cyan:'bg-cyan-100 text-cyan-700',
+    orange:'bg-orange-100 text-orange-700',
+  };
+  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${colors[color]||colors.gray}`}>{text}</span>;
+};
+
+const estadoColor = (e) => {
+  const m = { activo:'green', inactivo:'red', liquidada:'green', en_transito:'blue', confirmada:'indigo', borrador:'gray', en_aduana:'amber', pagado:'green', pendiente:'amber' };
+  return m[e]||'gray';
+};
+const estadoLabel = (e) => {
+  const m = { activo:'Activo', inactivo:'Inactivo', liquidada:'Liquidada', en_transito:'En Transito', confirmada:'Confirmada', borrador:'Borrador', en_aduana:'En Aduana', pagado:'Pagado', pendiente:'Pendiente' };
+  return m[e]||e;
+};
+
+const PageHeader = ({ title, subtitle, children }) => (
+  <div className="flex items-center justify-between mb-6">
+    <div>
+      <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+      {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+    </div>
+    <div className="flex gap-2">{children}</div>
+  </div>
+);
+
+const Card = ({ className='', children, ...props }) => (
+  <div className={`bg-white rounded-xl border border-gray-200 shadow-sm ${className}`} {...props}>{children}</div>
+);
+
+const Btn = ({ children, variant='primary', className='', ...props }) => {
+  const v = {
+    primary:'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
+    secondary:'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300',
+    success:'bg-emerald-600 hover:bg-emerald-700 text-white',
+    danger:'bg-red-600 hover:bg-red-700 text-white',
+  };
+  return <button className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${v[variant]||v.primary} ${className}`} {...props}>{children}</button>;
+};
+
+const fmt = (n) => new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+
+/* Modal + Form helpers */
+const Modal = ({ open, onClose, title, children, wide }) => {
+  if(!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-[5vh] overflow-y-auto" onClick={onClose}>
+      <div className={`bg-white rounded-2xl shadow-2xl ${wide?'w-full max-w-3xl':'w-full max-w-lg'} my-4 mx-4`} onClick={e=>e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white rounded-t-2xl z-10">
+          <h2 className="text-lg font-bold text-gray-800">{title}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <div className="px-6 py-5">{children}</div>
+      </div>
+    </div>
+  );
+};
+const FormField = ({ label, children }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    {children}
+  </div>
+);
+const inputCls = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500";
+const selectCls = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:border-blue-500";
+const SuccessToast = ({ message, onClose }) => {
+  useEffect(()=>{ const t=setTimeout(onClose,3000); return ()=>clearTimeout(t); },[]);
+  return (
+    <div className="fixed top-6 right-6 z-[60] bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 animate-[fadeIn_0.3s_ease]">
+      <span className="text-lg">✅</span><span className="font-medium text-sm">{message}</span>
+    </div>
+  );
+};
+
+/* ============================================================
+   LOGIN PAGE
+   ============================================================ */
+const LoginPage = ({ onLogin }) => {
+  const [email, setEmail] = useState('admin@importdemo.pe');
+  const [pass, setPass] = useState('admin123');
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-4">🚢</div>
+          <h1 className="text-3xl font-bold text-white">ImportCost Pro</h1>
+          <p className="text-blue-200 mt-2">Sistema de Costeo de Importaciones</p>
+        </div>
+        <Card className="p-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">Iniciar Sesion</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Correo electronico</label>
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+              <input type="password" value={pass} onChange={e=>setPass(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm" />
+            </div>
+            <Btn className="w-full py-2.5" onClick={onLogin}>Iniciar Sesion</Btn>
+          </div>
+          <p className="text-xs text-gray-400 text-center mt-6">Demo v1.0 - Credenciales de prueba precargadas</p>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   SIDEBAR + LAYOUT
+   ============================================================ */
+const NAV_ITEMS = [
+  { key:'dashboard', icon:'📊', label:'Dashboard' },
+  { key:'proveedores', icon:'🏭', label:'Proveedores' },
+  { key:'productos', icon:'📦', label:'Productos' },
+  { key:'ordenes', icon:'📋', label:'Ordenes de Compra' },
+  { key:'importaciones', icon:'🚢', label:'Importaciones' },
+  { key:'gastos', icon:'💰', label:'Gastos' },
+  { key:'dua', icon:'📄', label:'DUA / Tributos' },
+  { key:'prorrateo', icon:'📐', label:'Prorrateo' },
+  { key:'almacenes', icon:'🏪', label:'Almacenes' },
+  { key:'kardex', icon:'📒', label:'Kardex' },
+  { key:'reportes', icon:'📈', label:'Reportes' },
+];
+
+const Sidebar = ({ current, onChange, onLogout }) => (
+  <aside className="w-64 bg-slate-800 min-h-screen flex flex-col fixed left-0 top-0 bottom-0 z-10">
+    <div className="px-5 py-5 border-b border-slate-700">
+      <div className="flex items-center gap-3">
+        <span className="text-2xl">🚢</span>
+        <div>
+          <h1 className="text-white font-bold text-lg leading-tight">ImportCost Pro</h1>
+          <span className="text-slate-400 text-xs">Costeo de Importaciones</span>
+        </div>
+      </div>
+    </div>
+    <nav className="flex-1 py-3 overflow-y-auto">
+      {NAV_ITEMS.map(n=>(
+        <button key={n.key} onClick={()=>onChange(n.key)}
+          className={`sidebar-item w-full flex items-center gap-3 px-5 py-2.5 text-sm text-left ${current===n.key?'active text-white bg-blue-600/20 border-r-2 border-blue-400':'text-slate-300 hover:text-white'}`}>
+          <span className="text-lg">{n.icon}</span>{n.label}
+        </button>
+      ))}
+    </nav>
+    <div className="p-4 border-t border-slate-700">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
+        <div>
+          <p className="text-white text-sm font-medium">Admin Demo</p>
+          <p className="text-slate-400 text-xs">admin@importdemo.pe</p>
+        </div>
+      </div>
+      <button onClick={onLogout} className="w-full text-left text-slate-400 hover:text-red-400 text-xs flex items-center gap-2 transition-colors">
+        🚪 Cerrar sesion
+      </button>
+    </div>
+  </aside>
+);
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+const DashboardPage = () => {
+  const metrics = [
+    { label:'Importaciones Activas', value:'8', icon:'🚢', color:'bg-blue-50 text-blue-700', border:'border-blue-200' },
+    { label:'FOB Total', value:'$125,430', icon:'💵', color:'bg-emerald-50 text-emerald-700', border:'border-emerald-200' },
+    { label:'OCs Pendientes', value:'12', icon:'📋', color:'bg-amber-50 text-amber-700', border:'border-amber-200' },
+    { label:'Gastos del Mes', value:'S/45,200', icon:'💰', color:'bg-purple-50 text-purple-700', border:'border-purple-200' },
+  ];
+  const pipeline = [
+    { label:'Borrador', count:2, color:'bg-gray-400' },
+    { label:'Confirmada', count:3, color:'bg-indigo-500' },
+    { label:'En Transito', count:2, color:'bg-blue-500' },
+    { label:'En Aduana', count:1, color:'bg-amber-500' },
+    { label:'Liquidada', count:5, color:'bg-emerald-500' },
+  ];
+  const activity = [
+    { time:'Hace 2h', text:'OC-2026-0067 confirmada por proveedor American Tools', icon:'✅' },
+    { time:'Hace 5h', text:'IMP-2026-0023 ingreso a zona primaria - Aduana Aerea', icon:'✈️' },
+    { time:'Ayer', text:'DUA 235-2026-10-045678 numerada para IMP-2026-0012', icon:'📄' },
+    { time:'Hace 2 dias', text:'Pago flete maritimo Shanghai-Callao - $1,850.00 USD', icon:'💳' },
+    { time:'Hace 3 dias', text:'Nuevo proveedor Guangdong Electric Supply registrado', icon:'🏭' },
+  ];
+  return (
+    <div className="fade-in">
+      <PageHeader title="Dashboard" subtitle="Resumen general del sistema" />
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {metrics.map((m,i)=>(
+          <Card key={i} className={`card-hover p-5 ${m.border} border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{m.label}</p>
+                <p className="text-2xl font-bold mt-1 text-gray-800">{m.value}</p>
+              </div>
+              <div className={`w-12 h-12 rounded-xl ${m.color} flex items-center justify-center text-2xl`}>{m.icon}</div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      <Card className="p-6 mb-6">
+        <h3 className="font-semibold text-gray-800 mb-4">Pipeline de Importaciones</h3>
+        <div className="flex items-center justify-between">
+          {pipeline.map((p,i)=>(
+            <React.Fragment key={i}>
+              <div className="flex flex-col items-center">
+                <div className={`${p.color} text-white w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-lg`}>{p.count}</div>
+                <span className="text-xs font-medium text-gray-600 mt-2">{p.label}</span>
+              </div>
+              {i<pipeline.length-1 && <div className="text-gray-300 text-2xl mx-1">→</div>}
+            </React.Fragment>
+          ))}
+        </div>
+      </Card>
+      <Card className="p-6">
+        <h3 className="font-semibold text-gray-800 mb-4">Actividad Reciente</h3>
+        <div className="space-y-3">
+          {activity.map((a,i)=>(
+            <div key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <span className="text-xl mt-0.5">{a.icon}</span>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700">{a.text}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+/* ============================================================
+   PROVEEDORES
+   ============================================================ */
+const ProveedoresPage = () => {
+  const [data, setData] = useState([...PROVEEDORES]);
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState('');
+  const emptyForm = { ruc:'', razon:'', pais:'China', moneda:'USD', incoterm:'FOB' };
+  const [form, setForm] = useState({...emptyForm});
+  const upd = (k,v) => setForm({...form,[k]:v});
+
+  const filtered = data.filter(p=> p.razon.toLowerCase().includes(search.toLowerCase()) || p.pais.toLowerCase().includes(search.toLowerCase()));
+
+  const handleSave = () => {
+    if(!form.razon.trim()) return;
+    const ruc = form.ruc || ('206' + String(Math.floor(Math.random()*100000000)).padStart(8,'0'));
+    setData([{ id:Date.now(), ruc, razon:form.razon, pais:form.pais, moneda:form.moneda, incoterm:form.incoterm, ocs:0, estado:'activo' }, ...data]);
+    setShowForm(false); setForm({...emptyForm});
+    setToast(`Proveedor "${form.razon}" creado exitosamente`);
+  };
+
+  return (
+    <div className="fade-in">
+      {toast && <SuccessToast message={toast} onClose={()=>setToast('')} />}
+      <PageHeader title="Proveedores" subtitle={`${data.length} proveedores registrados`}>
+        <Btn onClick={()=>setShowForm(true)}>+ Nuevo Proveedor</Btn>
+      </PageHeader>
+      <Card className="overflow-hidden">
+        <div className="p-4 border-b border-gray-100">
+          <input type="text" placeholder="Buscar por razon social o pais..." value={search} onChange={e=>setSearch(e.target.value)}
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm" />
+        </div>
+        <table className="w-full text-sm">
+          <thead><tr className="bg-gray-50 text-left">
+            <th className="px-5 py-3 font-semibold text-gray-600">RUC</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Razon Social</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Pais</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Moneda</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Incoterm</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-center">OCs</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Estado</th>
+          </tr></thead>
+          <tbody>
+            {filtered.map(p=>(
+              <tr key={p.id} className="border-t border-gray-100 cursor-pointer hover:bg-blue-50/50" onClick={()=>alert(`Proveedor: ${p.razon}\nPais: ${p.pais}\nRUC: ${p.ruc}\nMoneda: ${p.moneda} | Incoterm: ${p.incoterm}`)}>
+                <td className="px-5 py-3 font-mono text-gray-500">{p.ruc}</td>
+                <td className="px-5 py-3 font-medium text-gray-800">{p.razon}</td>
+                <td className="px-5 py-3">{p.pais}</td>
+                <td className="px-5 py-3">{p.moneda}</td>
+                <td className="px-5 py-3"><Badge text={p.incoterm} color="blue" /></td>
+                <td className="px-5 py-3 text-center font-medium">{p.ocs}</td>
+                <td className="px-5 py-3"><Badge text={estadoLabel(p.estado)} color={estadoColor(p.estado)} /></td>
+              </tr>
+            ))}
+            {filtered.length===0 && <tr><td colSpan="7" className="px-5 py-8 text-center text-gray-400">No se encontraron proveedores</td></tr>}
+          </tbody>
+        </table>
+      </Card>
+      <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nuevo Proveedor">
+        <div className="space-y-4">
+          <FormField label="Razon Social *">
+            <input className={inputCls} placeholder="Nombre de la empresa" value={form.razon} onChange={e=>upd('razon',e.target.value)} />
+          </FormField>
+          <FormField label="RUC (opcional - se autogenera)">
+            <input className={inputCls} placeholder="20XXXXXXXXX" value={form.ruc} onChange={e=>upd('ruc',e.target.value)} maxLength={11} />
+          </FormField>
+          <div className="grid grid-cols-3 gap-3">
+            <FormField label="Pais">
+              <select className={selectCls} value={form.pais} onChange={e=>upd('pais',e.target.value)}>
+                {['China','Corea del Sur','Espana','USA','Japon','Alemania','Taiwan','Italia'].map(p=><option key={p}>{p}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Moneda">
+              <select className={selectCls} value={form.moneda} onChange={e=>upd('moneda',e.target.value)}>
+                <option>USD</option><option>EUR</option><option>JPY</option><option>CNY</option>
+              </select>
+            </FormField>
+            <FormField label="Incoterm">
+              <select className={selectCls} value={form.incoterm} onChange={e=>upd('incoterm',e.target.value)}>
+                {['FOB','CIF','EXW','DDP','CFR','FCA'].map(i=><option key={i}>{i}</option>)}
+              </select>
+            </FormField>
+          </div>
+          <div className="flex justify-end gap-2 pt-3 border-t">
+            <Btn variant="secondary" onClick={()=>setShowForm(false)}>Cancelar</Btn>
+            <Btn onClick={handleSave} className={!form.razon.trim()?'opacity-50':''}>Guardar Proveedor</Btn>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ============================================================
+   PRODUCTOS
+   ============================================================ */
+const ProductosPage = () => {
+  const [data, setData] = useState([...PRODUCTOS]);
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState('');
+  const emptyForm = { nombre:'', categoria:'Herramientas', hs:'', peso:'', stock:'0' };
+  const [form, setForm] = useState({...emptyForm});
+  const upd = (k,v) => setForm({...form,[k]:v});
+
+  const filtered = data.filter(p=>
+    p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+    p.sku.toLowerCase().includes(search.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(search.toLowerCase())
+  );
+  const stockColor = (s) => s<=10?'text-red-600 bg-red-50':s<=50?'text-amber-600 bg-amber-50':'text-emerald-600 bg-emerald-50';
+  const catColor = (c) => c==='Herramientas'?'blue':c==='Electricos'?'amber':c==='Cerrajeria'?'purple':'gray';
+
+  const genSku = (cat) => {
+    const prefix = cat==='Herramientas'?'HER':cat==='Electricos'?'ELE':cat==='Cerrajeria'?'CER':'GEN';
+    const code = String(Math.floor(Math.random()*900)+100);
+    return `${prefix}-NEW-${code}`;
+  };
+
+  const handleSave = () => {
+    if(!form.nombre.trim()) return;
+    const sku = genSku(form.categoria);
+    setData([...data, { id:Date.now(), sku, nombre:form.nombre, categoria:form.categoria, hs:form.hs||'0000.00.00', peso:Number(form.peso)||0, stock:Number(form.stock)||0, landed:0 }]);
+    setShowForm(false); setForm({...emptyForm});
+    setToast(`Producto "${form.nombre}" creado exitosamente`);
+  };
+
+  return (
+    <div className="fade-in">
+      {toast && <SuccessToast message={toast} onClose={()=>setToast('')} />}
+      <PageHeader title="Productos" subtitle={`${data.length} productos en catalogo`}>
+        <Btn onClick={()=>setShowForm(true)}>+ Nuevo Producto</Btn>
+      </PageHeader>
+      <Card className="overflow-hidden">
+        <div className="p-4 border-b border-gray-100">
+          <input type="text" placeholder="Buscar por SKU, nombre o categoria..." value={search} onChange={e=>setSearch(e.target.value)}
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm" />
+        </div>
+        <table className="w-full text-sm">
+          <thead><tr className="bg-gray-50 text-left">
+            <th className="px-5 py-3 font-semibold text-gray-600">SKU</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Nombre</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Categoria</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Codigo HS</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Peso (kg)</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Stock</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Costo Landed</th>
+          </tr></thead>
+          <tbody>
+            {data.filter(p=>
+              p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+              p.sku.toLowerCase().includes(search.toLowerCase()) ||
+              p.categoria.toLowerCase().includes(search.toLowerCase())
+            ).map(p=>(
+              <tr key={p.id} className="border-t border-gray-100 hover:bg-blue-50/50">
+                <td className="px-5 py-3 font-mono text-gray-500 text-xs">{p.sku}</td>
+                <td className="px-5 py-3 font-medium text-gray-800">{p.nombre}</td>
+                <td className="px-5 py-3"><Badge text={p.categoria} color={catColor(p.categoria)} /></td>
+                <td className="px-5 py-3 font-mono text-xs">{p.hs}</td>
+                <td className="px-5 py-3 text-right">{p.peso}</td>
+                <td className="px-5 py-3 text-right"><span className={`px-2 py-0.5 rounded font-semibold text-xs ${stockColor(p.stock)}`}>{p.stock}</span></td>
+                <td className="px-5 py-3 text-right font-semibold">{p.landed>0?'$'+fmt(p.landed):'—'}</td>
+              </tr>
+            ))}
+            {filtered.length===0 && <tr><td colSpan="7" className="px-5 py-8 text-center text-gray-400">No se encontraron productos</td></tr>}
+          </tbody>
+        </table>
+      </Card>
+      <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nuevo Producto">
+        <div className="space-y-4">
+          <FormField label="Nombre del Producto *">
+            <input className={inputCls} placeholder="Ej: Taladro Percutor 1000W" value={form.nombre} onChange={e=>upd('nombre',e.target.value)} />
+          </FormField>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Categoria">
+              <select className={selectCls} value={form.categoria} onChange={e=>upd('categoria',e.target.value)}>
+                {['Herramientas','Electricos','Cerrajeria','Plomeria','Pinturas','General'].map(c=><option key={c}>{c}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Codigo HS (Partida Arancelaria)">
+              <input className={inputCls} placeholder="8467.21.00" value={form.hs} onChange={e=>upd('hs',e.target.value)} />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Peso (kg)">
+              <input type="number" className={inputCls} placeholder="0.00" step="0.1" value={form.peso} onChange={e=>upd('peso',e.target.value)} />
+            </FormField>
+            <FormField label="Stock Inicial">
+              <input type="number" className={inputCls} placeholder="0" value={form.stock} onChange={e=>upd('stock',e.target.value)} />
+            </FormField>
+          </div>
+          <div className="flex justify-end gap-2 pt-3 border-t">
+            <Btn variant="secondary" onClick={()=>setShowForm(false)}>Cancelar</Btn>
+            <Btn onClick={handleSave} className={!form.nombre.trim()?'opacity-50':''}>Guardar Producto</Btn>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ============================================================
+   ORDENES DE COMPRA
+   ============================================================ */
+const OrdenesPage = () => {
+  const [data, setData] = useState([...ORDENES]);
+  const [selected, setSelected] = useState(null);
+  const [estados, setEstados] = useState({});
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState('');
+  const getEstado = (o) => estados[o.id] || o.estado;
+  const nextEstado = { borrador:'confirmada', confirmada:'en_transito', en_transito:'en_aduana', en_aduana:'liquidada' };
+
+  const advance = (o) => {
+    const cur = getEstado(o);
+    if(nextEstado[cur]) setEstados({...estados, [o.id]: nextEstado[cur]});
+  };
+
+  /* Form state */
+  const emptyItem = { producto:'', cantidad:'', precio:'' };
+  const [ocForm, setOcForm] = useState({ proveedor:PROVEEDORES[0].razon, fecha:new Date().toISOString().slice(0,10), moneda:'USD', incoterm:'FOB' });
+  const [ocItems, setOcItems] = useState([{...emptyItem}]);
+  const updOc = (k,v) => setOcForm({...ocForm,[k]:v});
+  const updItem = (idx,k,v) => { const ni=[...ocItems]; ni[idx]={...ni[idx],[k]:v}; setOcItems(ni); };
+  const addItem = () => setOcItems([...ocItems,{...emptyItem}]);
+  const rmItem = (idx) => ocItems.length>1 && setOcItems(ocItems.filter((_,i)=>i!==idx));
+
+  const handleSaveOc = () => {
+    const validItems = ocItems.filter(it=>it.producto && Number(it.cantidad)>0 && Number(it.precio)>0);
+    if(!validItems.length) return;
+    const num = `OC-2026-${String(data.length+70).padStart(4,'0')}`;
+    const items = validItems.map(it=>({ producto:it.producto, cantidad:Number(it.cantidad), precio:Number(it.precio), subtotal:Number(it.cantidad)*Number(it.precio) }));
+    const newOc = { id:Date.now(), numero:num, proveedor:ocForm.proveedor, fecha:ocForm.fecha, moneda:ocForm.moneda, incoterm:ocForm.incoterm, estado:'borrador', items };
+    setData([...data, newOc]);
+    setShowForm(false); setOcForm({ proveedor:PROVEEDORES[0].razon, fecha:new Date().toISOString().slice(0,10), moneda:'USD', incoterm:'FOB' }); setOcItems([{...emptyItem}]);
+    setToast(`Orden ${num} creada con ${items.length} items`);
+  };
+
+  const ocTotal = ocItems.reduce((s,it)=>{
+    const q=Number(it.cantidad)||0, p=Number(it.precio)||0;
+    return s+(q*p);
+  },0);
+
+  return (
+    <div className="fade-in">
+      {toast && <SuccessToast message={toast} onClose={()=>setToast('')} />}
+      <PageHeader title="Ordenes de Compra" subtitle={`${data.length} ordenes registradas`}>
+        <Btn onClick={()=>setShowForm(true)}>+ Nueva Orden</Btn>
+      </PageHeader>
+      {!selected ? (
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left">
+              <th className="px-5 py-3 font-semibold text-gray-600">Numero</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Proveedor</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Fecha</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Moneda</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Incoterm</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Total FOB</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Estado</th>
+            </tr></thead>
+            <tbody>
+              {data.map(o=>{
+                const total = o.items.reduce((s,i)=>s+i.subtotal,0);
+                const est = getEstado(o);
+                return (
+                  <tr key={o.id} className="border-t border-gray-100 cursor-pointer hover:bg-blue-50/50" onClick={()=>setSelected(o)}>
+                    <td className="px-5 py-3 font-mono font-medium text-blue-600">{o.numero}</td>
+                    <td className="px-5 py-3">{o.proveedor}</td>
+                    <td className="px-5 py-3">{o.fecha}</td>
+                    <td className="px-5 py-3">{o.moneda}</td>
+                    <td className="px-5 py-3"><Badge text={o.incoterm} color="blue" /></td>
+                    <td className="px-5 py-3 text-right font-semibold">${fmt(total)}</td>
+                    <td className="px-5 py-3"><Badge text={estadoLabel(est)} color={estadoColor(est)} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Card>
+      ) : (
+        <div>
+          <button onClick={()=>setSelected(null)} className="text-blue-600 hover:text-blue-800 text-sm font-medium mb-4 flex items-center gap-1">← Volver a lista</button>
+          <Card className="p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800">{selected.numero}</h2>
+              <Badge text={estadoLabel(getEstado(selected))} color={estadoColor(getEstado(selected))} />
+            </div>
+            <div className="grid grid-cols-4 gap-4 text-sm">
+              <div><span className="text-gray-500">Proveedor:</span><p className="font-medium">{selected.proveedor}</p></div>
+              <div><span className="text-gray-500">Fecha:</span><p className="font-medium">{selected.fecha}</p></div>
+              <div><span className="text-gray-500">Moneda:</span><p className="font-medium">{selected.moneda}</p></div>
+              <div><span className="text-gray-500">Incoterm:</span><p className="font-medium">{selected.incoterm}</p></div>
+            </div>
+          </Card>
+          <Card className="overflow-hidden mb-4">
+            <table className="w-full text-sm">
+              <thead><tr className="bg-gray-50 text-left">
+                <th className="px-5 py-3 font-semibold text-gray-600">Producto</th>
+                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Cantidad</th>
+                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Precio Unit.</th>
+                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Subtotal</th>
+              </tr></thead>
+              <tbody>
+                {selected.items.map((it,i)=>(
+                  <tr key={i} className="border-t border-gray-100">
+                    <td className="px-5 py-3 font-medium">{it.producto}</td>
+                    <td className="px-5 py-3 text-right">{it.cantidad}</td>
+                    <td className="px-5 py-3 text-right">${fmt(it.precio)}</td>
+                    <td className="px-5 py-3 text-right font-semibold">${fmt(it.subtotal)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-gray-200 bg-blue-50">
+                  <td colSpan="3" className="px-5 py-3 font-bold text-right text-gray-700">Total FOB ({selected.moneda})</td>
+                  <td className="px-5 py-3 text-right font-bold text-blue-700 text-lg">${fmt(selected.items.reduce((s,i)=>s+i.subtotal,0))}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </Card>
+          {nextEstado[getEstado(selected)] && (
+            <Btn variant="success" onClick={()=>advance(selected)}>
+              Avanzar a: {estadoLabel(nextEstado[getEstado(selected)])} →
+            </Btn>
+          )}
+        </div>
+      )}
+      <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nueva Orden de Compra" wide>
+        <div className="space-y-4">
+          <div className="grid grid-cols-4 gap-3">
+            <FormField label="Proveedor *">
+              <select className={selectCls} value={ocForm.proveedor} onChange={e=>updOc('proveedor',e.target.value)}>
+                {PROVEEDORES.filter(p=>p.estado==='activo').map(p=><option key={p.id} value={p.razon}>{p.razon}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Fecha">
+              <input type="date" className={inputCls} value={ocForm.fecha} onChange={e=>updOc('fecha',e.target.value)} />
+            </FormField>
+            <FormField label="Moneda">
+              <select className={selectCls} value={ocForm.moneda} onChange={e=>updOc('moneda',e.target.value)}>
+                <option>USD</option><option>EUR</option>
+              </select>
+            </FormField>
+            <FormField label="Incoterm">
+              <select className={selectCls} value={ocForm.incoterm} onChange={e=>updOc('incoterm',e.target.value)}>
+                {['FOB','CIF','EXW','DDP','CFR','FCA'].map(i=><option key={i}>{i}</option>)}
+              </select>
+            </FormField>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-semibold text-gray-700">Items de la Orden</label>
+              <button onClick={addItem} className="text-xs font-medium text-blue-600 hover:text-blue-800">+ Agregar Item</button>
+            </div>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50 text-left text-xs">
+                  <th className="px-3 py-2 font-semibold text-gray-600">Producto</th>
+                  <th className="px-3 py-2 font-semibold text-gray-600 w-28">Cantidad</th>
+                  <th className="px-3 py-2 font-semibold text-gray-600 w-32">Precio Unit.</th>
+                  <th className="px-3 py-2 font-semibold text-gray-600 w-28 text-right">Subtotal</th>
+                  <th className="px-3 py-2 w-10"></th>
+                </tr></thead>
+                <tbody>
+                  {ocItems.map((it,idx)=>{
+                    const sub = (Number(it.cantidad)||0)*(Number(it.precio)||0);
+                    return (
+                      <tr key={idx} className="border-t border-gray-100">
+                        <td className="px-2 py-1.5">
+                          <select className={selectCls+' text-xs'} value={it.producto} onChange={e=>updItem(idx,'producto',e.target.value)}>
+                            <option value="">-- Seleccionar --</option>
+                            {PRODUCTOS.map(p=><option key={p.id} value={p.nombre}>{p.nombre}</option>)}
+                          </select>
+                        </td>
+                        <td className="px-2 py-1.5"><input type="number" className={inputCls+' text-xs'} placeholder="0" min="1" value={it.cantidad} onChange={e=>updItem(idx,'cantidad',e.target.value)} /></td>
+                        <td className="px-2 py-1.5"><input type="number" className={inputCls+' text-xs'} placeholder="0.00" step="0.01" value={it.precio} onChange={e=>updItem(idx,'precio',e.target.value)} /></td>
+                        <td className="px-3 py-1.5 text-right font-semibold text-sm">{sub>0?'$'+fmt(sub):'—'}</td>
+                        <td className="px-2 py-1.5 text-center"><button onClick={()=>rmItem(idx)} className="text-red-400 hover:text-red-600 text-lg">&times;</button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {ocTotal>0 && (
+              <div className="flex justify-end mt-2">
+                <div className="bg-blue-50 px-4 py-2 rounded-lg">
+                  <span className="text-sm text-gray-600">Total FOB: </span>
+                  <span className="font-bold text-blue-700 text-lg">${fmt(ocTotal)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex justify-end gap-2 pt-3 border-t">
+            <Btn variant="secondary" onClick={()=>setShowForm(false)}>Cancelar</Btn>
+            <Btn onClick={handleSaveOc} className={ocTotal<=0?'opacity-50':''}>Crear Orden de Compra</Btn>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ============================================================
+   IMPORTACIONES
+   ============================================================ */
+const ImportacionesPage = () => {
+  const [data, setData] = useState([...IMPORTACIONES]);
+  const [selected, setSelected] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState('');
+  const viaIcon = (v) => v==='maritimo'?'🚢':'✈️';
+  const viaColor = (v) => v==='maritimo'?'blue':'purple';
+
+  const emptyImp = { via:'maritimo', bl:'', container:'', nave:'', fob:'', flete:'', seguro:'', selectedOcs:[] };
+  const [impForm, setImpForm] = useState({...emptyImp});
+  const updImp = (k,v) => setImpForm({...impForm,[k]:v});
+  const toggleOc = (num) => {
+    const sel = impForm.selectedOcs.includes(num) ? impForm.selectedOcs.filter(o=>o!==num) : [...impForm.selectedOcs, num];
+    updImp('selectedOcs', sel);
+  };
+
+  const handleSaveImp = () => {
+    const fob=Number(impForm.fob)||0, flete=Number(impForm.flete)||0, seguro=Number(impForm.seguro)||0;
+    if(fob<=0) return;
+    const num = `IMP-2026-${String(data.length+30).padStart(4,'0')}`;
+    const newImp = {
+      id:Date.now(), numero:num, via:impForm.via,
+      bl:impForm.bl||`BL-${Date.now().toString(36).toUpperCase()}`,
+      container:impForm.container||(impForm.via==='maritimo'?`CONT${Math.floor(Math.random()*9000000)+1000000}`:'N/A'),
+      nave:impForm.nave||'POR DEFINIR',
+      ocs:impForm.selectedOcs.length?impForm.selectedOcs:['Sin OC'],
+      estado:'borrador', fob, flete, seguro, tributos:0, gastos:0
+    };
+    setData([...data, newImp]);
+    setShowForm(false); setImpForm({...emptyImp});
+    setToast(`Importacion ${num} creada exitosamente`);
+  };
+
+  return (
+    <div className="fade-in">
+      {toast && <SuccessToast message={toast} onClose={()=>setToast('')} />}
+      <PageHeader title="Importaciones" subtitle={`${data.length} importaciones registradas`}>
+        <Btn onClick={()=>setShowForm(true)}>+ Nueva Importacion</Btn>
+      </PageHeader>
+      {!selected ? (
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left">
+              <th className="px-5 py-3 font-semibold text-gray-600">Numero</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Via</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">BL / AWB</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">FOB</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">CIF</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">OCs</th>
+              <th className="px-5 py-3 font-semibold text-gray-600">Estado</th>
+            </tr></thead>
+            <tbody>
+              {data.map(imp=>(
+                <tr key={imp.id} className="border-t border-gray-100 cursor-pointer hover:bg-blue-50/50" onClick={()=>setSelected(imp)}>
+                  <td className="px-5 py-3 font-mono font-medium text-blue-600">{imp.numero}</td>
+                  <td className="px-5 py-3"><Badge text={`${viaIcon(imp.via)} ${imp.via}`} color={viaColor(imp.via)} /></td>
+                  <td className="px-5 py-3 font-mono text-xs">{imp.bl}</td>
+                  <td className="px-5 py-3 text-right font-semibold">${fmt(imp.fob)}</td>
+                  <td className="px-5 py-3 text-right">${fmt(imp.fob+imp.flete+imp.seguro)}</td>
+                  <td className="px-5 py-3 text-xs">{imp.ocs.join(', ')}</td>
+                  <td className="px-5 py-3"><Badge text={estadoLabel(imp.estado)} color={estadoColor(imp.estado)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      ) : (
+        <div>
+          <button onClick={()=>setSelected(null)} className="text-blue-600 hover:text-blue-800 text-sm font-medium mb-4 flex items-center gap-1">← Volver a lista</button>
+          <Card className="p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800">{selected.numero}</h2>
+              <div className="flex gap-2">
+                <Badge text={`${viaIcon(selected.via)} ${selected.via}`} color={viaColor(selected.via)} />
+                <Badge text={estadoLabel(selected.estado)} color={estadoColor(selected.estado)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div><span className="text-gray-500">BL / AWB:</span><p className="font-mono font-medium">{selected.bl}</p></div>
+              <div><span className="text-gray-500">Contenedor:</span><p className="font-mono font-medium">{selected.container}</p></div>
+              <div><span className="text-gray-500">Nave / Vuelo:</span><p className="font-medium">{selected.nave}</p></div>
+            </div>
+          </Card>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <Card className="p-4">
+              <h3 className="font-semibold text-gray-700 mb-3">Ordenes de Compra Asociadas</h3>
+              {selected.ocs.map((oc,i)=>(
+                <div key={i} className="flex items-center gap-2 py-2 border-b border-gray-100 last:border-0">
+                  <span className="text-blue-600 font-mono text-sm">{oc}</span>
+                </div>
+              ))}
+            </Card>
+            <Card className="p-4">
+              <h3 className="font-semibold text-gray-700 mb-3">Resumen de Costos</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-gray-500">FOB:</span><span className="font-semibold">${fmt(selected.fob)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Flete:</span><span>${fmt(selected.flete)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Seguro:</span><span>${fmt(selected.seguro)}</span></div>
+                <div className="flex justify-between border-t pt-2"><span className="text-gray-500 font-medium">CIF:</span><span className="font-bold text-blue-600">${fmt(selected.fob+selected.flete+selected.seguro)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Tributos:</span><span className="text-amber-600 font-semibold">${fmt(selected.tributos)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Gastos:</span><span>${fmt(selected.gastos)}</span></div>
+                <div className="flex justify-between border-t-2 pt-2"><span className="font-bold">TOTAL LANDED:</span><span className="font-bold text-lg text-emerald-700">${fmt(selected.fob+selected.flete+selected.seguro+selected.tributos+selected.gastos)}</span></div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+      <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nueva Importacion" wide>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Via de Transporte *">
+              <select className={selectCls} value={impForm.via} onChange={e=>updImp('via',e.target.value)}>
+                <option value="maritimo">🚢 Maritimo</option>
+                <option value="aereo">✈️ Aereo</option>
+              </select>
+            </FormField>
+            <FormField label={impForm.via==='maritimo'?'Bill of Lading (BL)':'Air Waybill (AWB)'}>
+              <input className={inputCls} placeholder={impForm.via==='maritimo'?'COSU6278451230':'AWB 074-12345678'} value={impForm.bl} onChange={e=>updImp('bl',e.target.value)} />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Contenedor / Tracking">
+              <input className={inputCls} placeholder={impForm.via==='maritimo'?'TCLU2345678':'N/A'} value={impForm.container} onChange={e=>updImp('container',e.target.value)} />
+            </FormField>
+            <FormField label="Nave / Vuelo">
+              <input className={inputCls} placeholder={impForm.via==='maritimo'?'MSC AURORA':'LATAM CARGO'} value={impForm.nave} onChange={e=>updImp('nave',e.target.value)} />
+            </FormField>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <FormField label="FOB Total (USD) *">
+              <input type="number" className={inputCls} placeholder="0.00" step="0.01" value={impForm.fob} onChange={e=>updImp('fob',e.target.value)} />
+            </FormField>
+            <FormField label="Flete (USD)">
+              <input type="number" className={inputCls} placeholder="0.00" step="0.01" value={impForm.flete} onChange={e=>updImp('flete',e.target.value)} />
+            </FormField>
+            <FormField label="Seguro (USD)">
+              <input type="number" className={inputCls} placeholder="0.00" step="0.01" value={impForm.seguro} onChange={e=>updImp('seguro',e.target.value)} />
+            </FormField>
+          </div>
+          {(Number(impForm.fob)||0)>0 && (
+            <div className="bg-blue-50 rounded-lg p-3 text-sm">
+              <span className="text-gray-600">CIF estimado: </span>
+              <span className="font-bold text-blue-700">${fmt((Number(impForm.fob)||0)+(Number(impForm.flete)||0)+(Number(impForm.seguro)||0))}</span>
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Ordenes de Compra Asociadas</label>
+            <div className="grid grid-cols-2 gap-2">
+              {ORDENES.map(oc=>(
+                <label key={oc.id} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${impForm.selectedOcs.includes(oc.numero)?'border-blue-500 bg-blue-50':'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="checkbox" checked={impForm.selectedOcs.includes(oc.numero)} onChange={()=>toggleOc(oc.numero)} className="rounded" />
+                  <div>
+                    <span className="font-mono text-xs text-blue-600 font-medium">{oc.numero}</span>
+                    <span className="text-xs text-gray-500 ml-2">{oc.proveedor.substring(0,25)} - ${fmt(oc.items.reduce((s,i)=>s+i.subtotal,0))}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-3 border-t">
+            <Btn variant="secondary" onClick={()=>setShowForm(false)}>Cancelar</Btn>
+            <Btn onClick={handleSaveImp} className={(Number(impForm.fob)||0)<=0?'opacity-50':''}>Crear Importacion</Btn>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ============================================================
+   GASTOS
+   ============================================================ */
+const GastosPage = () => {
+  const [data, setData] = useState([...GASTOS]);
+  const [filtro, setFiltro] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState('');
+  const tipoColors = { flete_internacional:'bg-blue-500', seguro:'bg-cyan-500', agente_aduana:'bg-purple-500', almacenaje:'bg-amber-500', transporte_local:'bg-emerald-500', handling:'bg-indigo-500', otros:'bg-gray-500' };
+  const tipoLabels = { flete_internacional:'Flete Internacional', seguro:'Seguro', agente_aduana:'Agente Aduana', almacenaje:'Almacenaje', transporte_local:'Transporte Local', handling:'Handling', otros:'Otros' };
+  const tipos = Object.keys(tipoLabels);
+  const filtered = filtro ? data.filter(g=>g.tipo===filtro) : data;
+  const total = filtered.reduce((s,g)=>s+g.monto,0);
+
+  const emptyGasto = { tipo:'flete_internacional', desc:'', monto:'', moneda:'USD', comprobante:'' };
+  const [gForm, setGForm] = useState({...emptyGasto});
+  const updG = (k,v) => setGForm({...gForm,[k]:v});
+
+  const handleSaveGasto = () => {
+    const monto = Number(gForm.monto);
+    if(!gForm.desc.trim() || monto<=0) return;
+    const comp = gForm.comprobante || `FT-${String(Math.floor(Math.random()*900)+100)}-${String(Math.floor(Math.random()*9000)+1000)}`;
+    setData([...data, { id:Date.now(), tipo:gForm.tipo, desc:gForm.desc, monto, moneda:gForm.moneda, comprobante:comp, estado:'pendiente' }]);
+    setShowForm(false); setGForm({...emptyGasto});
+    setToast(`Gasto "${gForm.desc.substring(0,40)}" registrado por ${gForm.moneda==='PEN'?'S/':'$'}${fmt(monto)}`);
+  };
+
+  return (
+    <div className="fade-in">
+      {toast && <SuccessToast message={toast} onClose={()=>setToast('')} />}
+      <PageHeader title="Gastos" subtitle={`${data.length} gastos registrados`}>
+        <Btn onClick={()=>setShowForm(true)}>+ Nuevo Gasto</Btn>
+      </PageHeader>
+      <Card className="overflow-hidden">
+        <div className="p-4 border-b border-gray-100">
+          <select value={filtro} onChange={e=>setFiltro(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+            <option value="">Todos los tipos</option>
+            {tipos.map(t=><option key={t} value={t}>{tipoLabels[t]||t}</option>)}
+          </select>
+        </div>
+        <table className="w-full text-sm">
+          <thead><tr className="bg-gray-50 text-left">
+            <th className="px-5 py-3 font-semibold text-gray-600">Tipo</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Descripcion</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Monto</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Moneda</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Comprobante</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Estado</th>
+          </tr></thead>
+          <tbody>
+            {filtered.map(g=>(
+              <tr key={g.id} className="border-t border-gray-100 hover:bg-blue-50/50">
+                <td className="px-5 py-3"><div className="flex items-center gap-2"><span className={`w-2.5 h-2.5 rounded-full ${tipoColors[g.tipo]||'bg-gray-400'}`}></span><span className="text-sm">{tipoLabels[g.tipo]||g.tipo}</span></div></td>
+                <td className="px-5 py-3 text-gray-700">{g.desc}</td>
+                <td className="px-5 py-3 text-right font-semibold">{g.moneda==='PEN'?'S/':'$'}{fmt(g.monto)}</td>
+                <td className="px-5 py-3">{g.moneda}</td>
+                <td className="px-5 py-3 font-mono text-xs text-gray-500">{g.comprobante}</td>
+                <td className="px-5 py-3"><Badge text={estadoLabel(g.estado)} color={estadoColor(g.estado)} /></td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-gray-300 bg-gray-50">
+              <td colSpan="2" className="px-5 py-3 font-bold text-right">Total ({filtered.length} gastos):</td>
+              <td className="px-5 py-3 text-right font-bold text-lg text-blue-700">{fmt(total)}</td>
+              <td colSpan="3" className="px-5 py-3 text-gray-500 text-xs">(monedas mixtas)</td>
+            </tr>
+          </tfoot>
+        </table>
+      </Card>
+      <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nuevo Gasto de Importacion">
+        <div className="space-y-4">
+          <FormField label="Tipo de Gasto *">
+            <select className={selectCls} value={gForm.tipo} onChange={e=>updG('tipo',e.target.value)}>
+              {tipos.map(t=><option key={t} value={t}>{tipoLabels[t]}</option>)}
+            </select>
+          </FormField>
+          <FormField label="Descripcion *">
+            <input className={inputCls} placeholder="Ej: Flete maritimo Shanghai-Callao" value={gForm.desc} onChange={e=>updG('desc',e.target.value)} />
+          </FormField>
+          <div className="grid grid-cols-3 gap-3">
+            <FormField label="Monto *">
+              <input type="number" className={inputCls} placeholder="0.00" step="0.01" value={gForm.monto} onChange={e=>updG('monto',e.target.value)} />
+            </FormField>
+            <FormField label="Moneda">
+              <select className={selectCls} value={gForm.moneda} onChange={e=>updG('moneda',e.target.value)}>
+                <option>USD</option><option>PEN</option><option>EUR</option>
+              </select>
+            </FormField>
+            <FormField label="N° Comprobante (opcional)">
+              <input className={inputCls} placeholder="FT-001-0234" value={gForm.comprobante} onChange={e=>updG('comprobante',e.target.value)} />
+            </FormField>
+          </div>
+          <div className="flex justify-end gap-2 pt-3 border-t">
+            <Btn variant="secondary" onClick={()=>setShowForm(false)}>Cancelar</Btn>
+            <Btn onClick={handleSaveGasto} className={(!gForm.desc.trim()||(Number(gForm.monto)||0)<=0)?'opacity-50':''}>Registrar Gasto</Btn>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+/* ============================================================
+   DUA - LIVE TAX CALCULATOR
+   ============================================================ */
+const DuaPage = () => {
+  const [fob, setFob] = useState(17750);
+  const [flete, setFlete] = useState(1850);
+  const [seguro, setSeguro] = useState(266.25);
+  const [adValoremPct, setAdValoremPct] = useState(6);
+
+  const cif = fob + flete + seguro;
+  const adValorem = cif * (adValoremPct / 100);
+  const baseIgv = cif + adValorem;
+  const igv = baseIgv * 0.16;
+  const ipm = baseIgv * 0.02;
+  const basePercepcion = cif + adValorem + igv + ipm;
+  const percepcion = basePercepcion * 0.035;
+  const totalTributos = adValorem + igv + ipm + percepcion;
+
+  const ResultCard = ({ label, value, color, big }) => (
+    <div className={`${color} rounded-xl p-4 ${big?'col-span-2':''}`}>
+      <p className="text-xs font-medium opacity-80 uppercase tracking-wide">{label}</p>
+      <p className={`${big?'text-2xl':'text-xl'} font-bold mt-1`}>${fmt(value)}</p>
+    </div>
+  );
+
+  return (
+    <div className="fade-in">
+      <PageHeader title="DUA - Calculo de Tributos" subtitle="Calculo en tiempo real de tributos aduaneros peruanos" />
+      <div className="grid grid-cols-3 gap-6">
+        <Card className="p-6 col-span-1">
+          <h3 className="font-semibold text-gray-800 mb-4">Valores de Importacion</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">FOB (USD)</label>
+              <input type="number" value={fob} onChange={e=>setFob(Number(e.target.value)||0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Flete (USD)</label>
+              <input type="number" value={flete} onChange={e=>setFlete(Number(e.target.value)||0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Seguro (USD)</label>
+              <input type="number" value={seguro} onChange={e=>setSeguro(Number(e.target.value)||0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Tasa Ad Valorem (%)</label>
+              <input type="number" value={adValoremPct} onChange={e=>setAdValoremPct(Number(e.target.value)||0)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono" step="0.5" />
+            </div>
+          </div>
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="text-xs font-semibold text-gray-500 mb-2 uppercase">Formulas Aplicadas</h4>
+            <div className="space-y-1 text-xs text-gray-600 font-mono">
+              <p>CIF = FOB + Flete + Seguro</p>
+              <p>Ad Val. = CIF x {adValoremPct}%</p>
+              <p>Base IGV = CIF + Ad Val.</p>
+              <p>IGV = Base IGV x 16%</p>
+              <p>IPM = Base IGV x 2%</p>
+              <p>Base Perc. = CIF+AdVal+IGV+IPM</p>
+              <p>Percepcion = Base Perc. x 3.5%</p>
+            </div>
+          </div>
+        </Card>
+        <div className="col-span-2 space-y-4">
+          <Card className="p-6">
+            <h3 className="font-semibold text-gray-800 mb-4">Resultado de Liquidacion</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <ResultCard label="CIF (Valor en Aduana)" value={cif} color="bg-blue-50 text-blue-800" big />
+              <ResultCard label="Ad Valorem" value={adValorem} color="bg-amber-50 text-amber-800" />
+              <ResultCard label="Base IGV" value={baseIgv} color="bg-orange-50 text-orange-800" />
+              <ResultCard label="IGV (16%)" value={igv} color="bg-orange-50 text-orange-800" />
+              <ResultCard label="IPM (2%)" value={ipm} color="bg-purple-50 text-purple-800" />
+              <ResultCard label="Base Percepcion" value={basePercepcion} color="bg-rose-50 text-rose-800" />
+              <ResultCard label="Percepcion (3.5%)" value={percepcion} color="bg-rose-50 text-rose-800" />
+            </div>
+          </Card>
+          <Card className="p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-100">Total Tributos a Pagar</p>
+                <p className="text-3xl font-bold mt-1">${fmt(totalTributos)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-blue-200">% sobre FOB</p>
+                <p className="text-2xl font-bold">{fob>0?((totalTributos/fob)*100).toFixed(1):0}%</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <h3 className="font-semibold text-gray-800 mb-3">Desglose Detallado</h3>
+            <table className="w-full text-sm">
+              <thead><tr className="text-left border-b">
+                <th className="py-2 text-gray-500">Concepto</th>
+                <th className="py-2 text-gray-500 text-right">Base</th>
+                <th className="py-2 text-gray-500 text-right">Tasa</th>
+                <th className="py-2 text-gray-500 text-right">Importe USD</th>
+              </tr></thead>
+              <tbody>
+                <tr className="border-b"><td className="py-2">FOB</td><td className="py-2 text-right">-</td><td className="py-2 text-right">-</td><td className="py-2 text-right font-mono">{fmt(fob)}</td></tr>
+                <tr className="border-b"><td className="py-2">Flete</td><td className="py-2 text-right">-</td><td className="py-2 text-right">-</td><td className="py-2 text-right font-mono">{fmt(flete)}</td></tr>
+                <tr className="border-b"><td className="py-2">Seguro</td><td className="py-2 text-right">-</td><td className="py-2 text-right">-</td><td className="py-2 text-right font-mono">{fmt(seguro)}</td></tr>
+                <tr className="border-b bg-blue-50 font-semibold"><td className="py-2">CIF</td><td className="py-2 text-right">-</td><td className="py-2 text-right">-</td><td className="py-2 text-right font-mono">{fmt(cif)}</td></tr>
+                <tr className="border-b"><td className="py-2">Ad Valorem</td><td className="py-2 text-right font-mono">{fmt(cif)}</td><td className="py-2 text-right">{adValoremPct}%</td><td className="py-2 text-right font-mono">{fmt(adValorem)}</td></tr>
+                <tr className="border-b"><td className="py-2">IGV</td><td className="py-2 text-right font-mono">{fmt(baseIgv)}</td><td className="py-2 text-right">16%</td><td className="py-2 text-right font-mono">{fmt(igv)}</td></tr>
+                <tr className="border-b"><td className="py-2">IPM</td><td className="py-2 text-right font-mono">{fmt(baseIgv)}</td><td className="py-2 text-right">2%</td><td className="py-2 text-right font-mono">{fmt(ipm)}</td></tr>
+                <tr className="border-b"><td className="py-2">Percepcion</td><td className="py-2 text-right font-mono">{fmt(basePercepcion)}</td><td className="py-2 text-right">3.5%</td><td className="py-2 text-right font-mono">{fmt(percepcion)}</td></tr>
+                <tr className="bg-indigo-50 font-bold text-indigo-800"><td className="py-3">TOTAL TRIBUTOS</td><td className="py-3"></td><td className="py-3"></td><td className="py-3 text-right text-lg font-mono">{fmt(totalTributos)}</td></tr>
+              </tbody>
+            </table>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   PRORRATEO WIZARD
+   ============================================================ */
+const ProrrateoPage = () => {
+  const [step, setStep] = useState(1);
+  const [impId, setImpId] = useState('');
+  const [metodo, setMetodo] = useState('valor_fob');
+  const [results, setResults] = useState(null);
+  const [applied, setApplied] = useState(false);
+
+  const calcular = () => {
+    const imp = IMPORTACIONES.find(i=>i.numero===impId);
+    if(!imp) return;
+    const flete = imp.flete, seguro = imp.seguro, tributos = imp.tributos, gastos = imp.gastos;
+    const items = [
+      { producto:'Taladro Percutor 800W', fob:12500, peso:640, vol:1.28, qty:200 },
+      { producto:'Amoladora Angular 4.5"', fob:5250, peso:315, vol:0.63, qty:150 },
+    ];
+    if(impId==='IMP-2026-0018'){
+      items.length=0;
+      items.push({ producto:'Sierra Circular 7 1/4"', fob:8800, peso:480, vol:0.96, qty:100 });
+    } else if(impId==='IMP-2026-0023'){
+      items.length=0;
+      items.push({ producto:'Cerradura Digital Biometrica', fob:15600, peso:450, vol:0.45, qty:300 });
+    }
+    const totalFob = items.reduce((s,i)=>s+i.fob,0);
+    const totalPeso = items.reduce((s,i)=>s+i.peso,0);
+    const totalVol = items.reduce((s,i)=>s+i.vol,0);
+    const totalQty = items.reduce((s,i)=>s+i.qty,0);
+    const dist = items.map(it=>{
+      let pct;
+      if(metodo==='valor_fob') pct=it.fob/totalFob;
+      else if(metodo==='peso') pct=it.peso/totalPeso;
+      else if(metodo==='volumen') pct=it.vol/totalVol;
+      else pct=it.qty/totalQty;
+      const flP=flete*pct, seP=seguro*pct, trP=tributos*pct, gaP=gastos*pct;
+      const landed=it.fob+flP+seP+trP+gaP;
+      return { ...it, pct:pct*100, fleteP:flP, seguroP:seP, tributosP:trP, gastosP:gaP, landed, costoUnit:landed/it.qty };
+    });
+    setResults({ imp, dist, totals:{ flete, seguro, tributos, gastos, landed:dist.reduce((s,d)=>s+d.landed,0) } });
+    setStep(3);
+  };
+
+  const metodoLabels = { valor_fob:'Valor FOB', peso:'Peso (kg)', volumen:'Volumen (m3)', cantidad:'Cantidad (unidades)' };
+
+  return (
+    <div className="fade-in">
+      <PageHeader title="Prorrateo de Costos" subtitle="Distribucion de costos a nivel de producto" />
+
+      <div className="flex items-center gap-4 mb-6">
+        {[1,2,3].map(s=>(
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step>=s?'bg-blue-600 text-white':'bg-gray-200 text-gray-500'}`}>{s}</div>
+            <span className={`text-sm font-medium ${step>=s?'text-gray-800':'text-gray-400'}`}>
+              {s===1?'Seleccionar Importacion':s===2?'Metodo de Prorrateo':'Resultados'}
+            </span>
+            {s<3 && <span className="text-gray-300 mx-2">→</span>}
+          </div>
+        ))}
+      </div>
+
+      {step===1 && (
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Paso 1: Seleccione la importacion</h3>
+          <select value={impId} onChange={e=>setImpId(e.target.value)} className="w-full max-w-md px-4 py-2.5 border border-gray-300 rounded-lg text-sm">
+            <option value="">-- Seleccionar --</option>
+            {IMPORTACIONES.filter(i=>i.estado!=='borrador').map(i=>(
+              <option key={i.id} value={i.numero}>{i.numero} - FOB ${fmt(i.fob)} ({estadoLabel(i.estado)})</option>
+            ))}
+          </select>
+          <div className="mt-4">
+            <Btn onClick={()=>impId&&setStep(2)} className={!impId?'opacity-50 cursor-not-allowed':''}>Siguiente →</Btn>
+          </div>
+        </Card>
+      )}
+
+      {step===2 && (
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Paso 2: Seleccione el metodo de distribucion</h3>
+          <div className="grid grid-cols-2 gap-3 max-w-lg mb-6">
+            {Object.entries(metodoLabels).map(([k,v])=>(
+              <button key={k} onClick={()=>setMetodo(k)}
+                className={`p-4 rounded-xl border-2 text-left transition-all ${metodo===k?'border-blue-500 bg-blue-50':'border-gray-200 hover:border-gray-300'}`}>
+                <p className="font-medium text-sm">{v}</p>
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Btn variant="secondary" onClick={()=>setStep(1)}>← Atras</Btn>
+            <Btn onClick={calcular}>Calcular Prorrateo</Btn>
+          </div>
+        </Card>
+      )}
+
+      {step===3 && results && (
+        <div>
+          <div className="grid grid-cols-5 gap-3 mb-4">
+            <Card className="p-4 bg-blue-50 border-blue-200"><p className="text-xs text-blue-600 font-medium">Flete</p><p className="text-lg font-bold text-blue-800">${fmt(results.totals.flete)}</p></Card>
+            <Card className="p-4 bg-cyan-50 border-cyan-200"><p className="text-xs text-cyan-600 font-medium">Seguro</p><p className="text-lg font-bold text-cyan-800">${fmt(results.totals.seguro)}</p></Card>
+            <Card className="p-4 bg-amber-50 border-amber-200"><p className="text-xs text-amber-600 font-medium">Tributos</p><p className="text-lg font-bold text-amber-800">${fmt(results.totals.tributos)}</p></Card>
+            <Card className="p-4 bg-purple-50 border-purple-200"><p className="text-xs text-purple-600 font-medium">Gastos</p><p className="text-lg font-bold text-purple-800">${fmt(results.totals.gastos)}</p></Card>
+            <Card className="p-4 bg-emerald-50 border-emerald-200"><p className="text-xs text-emerald-600 font-medium">Total Landed</p><p className="text-lg font-bold text-emerald-800">${fmt(results.totals.landed)}</p></Card>
+          </div>
+          <Card className="overflow-hidden mb-4">
+            <div className="px-5 py-3 bg-gray-50 border-b text-sm font-medium text-gray-600">
+              Metodo: <Badge text={metodoLabels[metodo]} color="blue" /> | Importacion: <span className="font-mono">{impId}</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50 text-left text-xs">
+                  <th className="px-4 py-3 font-semibold text-gray-600">Producto</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">FOB</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">%</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Flete</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Seguro</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Tributos</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Gastos</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Landed</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Qty</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600 text-right">Costo/Und</th>
+                </tr></thead>
+                <tbody>
+                  {results.dist.map((d,i)=>(
+                    <tr key={i} className="border-t border-gray-100">
+                      <td className="px-4 py-3 font-medium">{d.producto}</td>
+                      <td className="px-4 py-3 text-right font-mono">${fmt(d.fob)}</td>
+                      <td className="px-4 py-3 text-right"><Badge text={d.pct.toFixed(1)+'%'} color="blue" /></td>
+                      <td className="px-4 py-3 text-right font-mono">${fmt(d.fleteP)}</td>
+                      <td className="px-4 py-3 text-right font-mono">${fmt(d.seguroP)}</td>
+                      <td className="px-4 py-3 text-right font-mono">${fmt(d.tributosP)}</td>
+                      <td className="px-4 py-3 text-right font-mono">${fmt(d.gastosP)}</td>
+                      <td className="px-4 py-3 text-right font-bold text-emerald-700">${fmt(d.landed)}</td>
+                      <td className="px-4 py-3 text-right">{d.qty}</td>
+                      <td className="px-4 py-3 text-right font-bold text-blue-700">${fmt(d.costoUnit)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+          <div className="flex gap-2">
+            <Btn variant="secondary" onClick={()=>{setStep(1);setResults(null);setApplied(false);}}>← Nuevo Calculo</Btn>
+            {!applied ? (
+              <Btn variant="success" onClick={()=>setApplied(true)}>Aplicar Costos a Productos</Btn>
+            ) : (
+              <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg border border-emerald-200">
+                <span className="text-lg">✅</span>
+                <span className="font-medium text-sm">Costos aplicados exitosamente a {results.dist.length} productos</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ============================================================
+   ALMACENES + INVENTARIO
+   ============================================================ */
+const AlmacenesPage = () => {
+  const [movTipo, setMovTipo] = useState('ingreso');
+  const stockColor = (s, min) => s<=min*0.5?'text-red-600 bg-red-50':s<=min?'text-amber-600 bg-amber-50':'text-emerald-600 bg-emerald-50';
+  return (
+    <div className="fade-in">
+      <PageHeader title="Almacenes e Inventario" subtitle="Control de stock y movimientos" />
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {ALMACENES.map(a=>(
+          <Card key={a.id} className="card-hover p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-gray-800">{a.nombre}</h3>
+              <span className="text-2xl">🏪</span>
+            </div>
+            <p className="text-sm text-gray-500 mb-3">{a.ubicacion}</p>
+            <div className="flex justify-between text-sm">
+              <div><span className="text-gray-400">Capacidad</span><p className="font-bold text-blue-600">{a.capacidad}%</p></div>
+              <div><span className="text-gray-400">Productos</span><p className="font-bold">{a.productos}</p></div>
+            </div>
+            <div className="mt-3 bg-gray-100 rounded-full h-2">
+              <div className={`h-2 rounded-full ${a.capacidad>80?'bg-red-500':a.capacidad>50?'bg-amber-500':'bg-emerald-500'}`} style={{width:`${a.capacidad}%`}}></div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      <Card className="overflow-hidden mb-6">
+        <div className="px-5 py-3 bg-gray-50 border-b font-semibold text-gray-700 text-sm">Stock por Almacen</div>
+        <table className="w-full text-sm">
+          <thead><tr className="bg-gray-50 text-left">
+            <th className="px-5 py-3 font-semibold text-gray-600">Almacen</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Producto</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Stock</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Minimo</th>
+            <th className="px-5 py-3 font-semibold text-gray-600 text-right">Maximo</th>
+            <th className="px-5 py-3 font-semibold text-gray-600">Estado</th>
+          </tr></thead>
+          <tbody>
+            {INVENTARIO.map((inv,i)=>(
+              <tr key={i} className="border-t border-gray-100">
+                <td className="px-5 py-3">{inv.almacen}</td>
+                <td className="px-5 py-3 font-medium">{inv.producto}</td>
+                <td className="px-5 py-3 text-right"><span className={`px-2 py-0.5 rounded font-bold text-xs ${stockColor(inv.stock,inv.minimo)}`}>{inv.stock}</span></td>
+                <td className="px-5 py-3 text-right text-gray-500">{inv.minimo}</td>
+                <td className="px-5 py-3 text-right text-gray-500">{inv.maximo}</td>
+                <td className="px-5 py-3">
+                  {inv.stock<=inv.minimo*0.5?<Badge text="Critico" color="red" />:inv.stock<=inv.minimo?<Badge text="Bajo" color="amber" />:<Badge text="Normal" color="green" />}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+      <Card className="p-5">
+        <h3 className="font-semibold text-gray-800 mb-4">Registrar Movimiento</h3>
+        <div className="flex gap-3">
+          {['ingreso','transferencia','salida'].map(t=>(
+            <button key={t} onClick={()=>setMovTipo(t)}
+              className={`px-5 py-2.5 rounded-lg text-sm font-medium border-2 transition-all ${movTipo===t?'border-blue-500 bg-blue-50 text-blue-700':'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+              {t==='ingreso'?'📥 Ingreso':t==='transferencia'?'🔄 Transferencia':'📤 Salida'}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 grid grid-cols-4 gap-3">
+          <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            <option>Seleccionar almacen...</option>
+            {ALMACENES.map(a=><option key={a.id}>{a.nombre}</option>)}
+          </select>
+          <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            <option>Seleccionar producto...</option>
+            {PRODUCTOS.map(p=><option key={p.id}>{p.nombre}</option>)}
+          </select>
+          <input type="number" placeholder="Cantidad" className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+          <Btn>Registrar Movimiento</Btn>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+/* ============================================================
+   KARDEX
+   ============================================================ */
+const KardexPage = () => {
+  const [producto, setProducto] = useState('Taladro Percutor 800W');
+  const [fechaDesde, setFechaDesde] = useState('2026-01-01');
+  const [fechaHasta, setFechaHasta] = useState('2026-03-31');
+
+  const kardex = useMemo(()=>{
+    let saldoQty=0, saldoTotal=0;
+    return KARDEX_DATA.map(row=>{
+      if(row.tipo==='INGRESO'){
+        saldoQty += row.eQty;
+        saldoTotal += row.eTotal;
+      } else {
+        saldoQty -= row.sQty;
+        saldoTotal -= row.sTotal;
+      }
+      const saldoCu = saldoQty > 0 ? saldoTotal/saldoQty : 0;
+      return { ...row, saldoQty, saldoCu, saldoTotal };
+    });
+  }, []);
+
+  return (
+    <div className="fade-in">
+      <PageHeader title="Kardex Valorizado" subtitle="Formato SUNAT - Registro de inventario permanente" />
+      <Card className="p-4 mb-4">
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-gray-600 mb-1">Producto</label>
+            <select value={producto} onChange={e=>setProducto(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              {PRODUCTOS.map(p=><option key={p.id}>{p.nombre}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Desde</label>
+            <input type="date" value={fechaDesde} onChange={e=>setFechaDesde(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
+            <input type="date" value={fechaHasta} onChange={e=>setFechaHasta(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+          </div>
+          <Btn>Consultar</Btn>
+        </div>
+      </Card>
+      <Card className="overflow-hidden">
+        <div className="px-5 py-3 bg-gray-50 border-b text-sm">
+          <span className="font-semibold text-gray-700">Producto:</span> <span className="text-blue-600 font-medium">{producto}</span>
+          <span className="text-gray-400 mx-3">|</span>
+          <span className="text-gray-500">Metodo: Promedio Ponderado</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-gray-50 text-center">
+                <th rowSpan="2" className="px-3 py-2 font-semibold text-gray-600 border-r text-left">Fecha</th>
+                <th rowSpan="2" className="px-3 py-2 font-semibold text-gray-600 border-r">Tipo</th>
+                <th rowSpan="2" className="px-3 py-2 font-semibold text-gray-600 border-r text-left">Documento</th>
+                <th colSpan="3" className="px-3 py-1 font-semibold text-emerald-700 border-r border-b bg-emerald-50">ENTRADAS</th>
+                <th colSpan="3" className="px-3 py-1 font-semibold text-red-700 border-r border-b bg-red-50">SALIDAS</th>
+                <th colSpan="3" className="px-3 py-1 font-semibold text-blue-700 border-b bg-blue-50">SALDO FINAL</th>
+              </tr>
+              <tr className="bg-gray-50 text-center text-xs">
+                <th className="px-2 py-1 text-emerald-600 bg-emerald-50">Qty</th>
+                <th className="px-2 py-1 text-emerald-600 bg-emerald-50">C/U</th>
+                <th className="px-2 py-1 text-emerald-600 border-r bg-emerald-50">Total</th>
+                <th className="px-2 py-1 text-red-600 bg-red-50">Qty</th>
+                <th className="px-2 py-1 text-red-600 bg-red-50">C/U</th>
+                <th className="px-2 py-1 text-red-600 border-r bg-red-50">Total</th>
+                <th className="px-2 py-1 text-blue-600 bg-blue-50">Qty</th>
+                <th className="px-2 py-1 text-blue-600 bg-blue-50">C/U</th>
+                <th className="px-2 py-1 text-blue-600 bg-blue-50">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {kardex.map((r,i)=>(
+                <tr key={i} className="border-t border-gray-100 text-center">
+                  <td className="px-3 py-2 text-left font-mono">{r.fecha}</td>
+                  <td className="px-3 py-2">
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${r.tipo==='INGRESO'?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}`}>{r.tipo}</span>
+                  </td>
+                  <td className="px-3 py-2 text-left font-mono">{r.doc}</td>
+                  <td className="px-3 py-2 bg-emerald-50/30">{r.eQty||'-'}</td>
+                  <td className="px-3 py-2 bg-emerald-50/30">{r.eCu?fmt(r.eCu):'-'}</td>
+                  <td className="px-3 py-2 bg-emerald-50/30 border-r">{r.eTotal?fmt(r.eTotal):'-'}</td>
+                  <td className="px-3 py-2 bg-red-50/30">{r.sQty||'-'}</td>
+                  <td className="px-3 py-2 bg-red-50/30">{r.sCu?fmt(r.sCu):'-'}</td>
+                  <td className="px-3 py-2 bg-red-50/30 border-r">{r.sTotal?fmt(r.sTotal):'-'}</td>
+                  <td className="px-3 py-2 bg-blue-50/30 font-semibold">{r.saldoQty}</td>
+                  <td className="px-3 py-2 bg-blue-50/30 font-semibold">{fmt(r.saldoCu)}</td>
+                  <td className="px-3 py-2 bg-blue-50/30 font-bold">{fmt(r.saldoTotal)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+/* ============================================================
+   REPORTES
+   ============================================================ */
+const ReportesPage = () => {
+  const [tab, setTab] = useState('mensual');
+
+  const meses = ['Enero','Febrero','Marzo'];
+  const mensualData = [
+    { mes:'Enero 2026', fob:17750, cif:19866.25, tributos:6823.50, gastos:3550, landed:30239.75 },
+    { mes:'Febrero 2026', fob:24400, cif:27932, tributos:5180, gastos:5650, landed:38762 },
+    { mes:'Marzo 2026', fob:25150, cif:27627.25, tributos:0, gastos:800, landed:28427.25 },
+  ];
+  const provData = [
+    { proveedor:'Zhejiang Huayu Tools', ocs:5, fob:17750, tributos:6823.50, landed:30239.75, pct:31 },
+    { proveedor:'Korea Power Instruments', ocs:3, fob:8800, tributos:0, landed:10800, pct:11 },
+    { proveedor:'Ferreteria Industrial Espanola', ocs:2, fob:15600, tributos:5180, landed:25614, pct:26 },
+    { proveedor:'American Tools Distribution', ocs:4, fob:11100, tributos:0, landed:11100, pct:11 },
+    { proveedor:'Guangdong Electric Supply', ocs:3, fob:14050, tributos:0, landed:14050, pct:14 },
+  ];
+  const prodData = [
+    { producto:'Taladro Percutor 800W', importaciones:3, qtyTotal:500, costoPromedio:151.20, landed:75600, margen:'42%' },
+    { producto:'Amoladora Angular 4.5"', importaciones:2, qtyTotal:300, costoPromedio:92.50, landed:27750, margen:'38%' },
+    { producto:'Sierra Circular 7 1/4"', importaciones:1, qtyTotal:150, costoPromedio:210.60, landed:31590, margen:'35%' },
+    { producto:'Cerradura Digital', importaciones:1, qtyTotal:300, costoPromedio:145.80, landed:43740, margen:'45%' },
+    { producto:'Cable THHN 14 AWG', importaciones:2, qtyTotal:800, costoPromedio:48.20, landed:38560, margen:'52%' },
+    { producto:'Interruptor Termomagnetico', importaciones:1, qtyTotal:1000, costoPromedio:12.90, landed:12900, margen:'55%' },
+  ];
+
+  return (
+    <div className="fade-in">
+      <PageHeader title="Reportes" subtitle="Analisis y reportes de costeo">
+        <Btn variant="secondary">📥 Exportar Excel</Btn>
+      </PageHeader>
+      <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1 w-fit">
+        {[['mensual','Resumen Mensual'],['proveedor','Por Proveedor'],['producto','Por Producto']].map(([k,l])=>(
+          <button key={k} onClick={()=>setTab(k)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${tab===k?'bg-white text-blue-600 shadow-sm':'text-gray-600 hover:text-gray-800'}`}>{l}</button>
+        ))}
+      </div>
+
+      {tab==='mensual' && (
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left">
+              <th className="px-5 py-3 font-semibold text-gray-600">Periodo</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">FOB</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">CIF</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Tributos</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Gastos</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Total Landed</th>
+            </tr></thead>
+            <tbody>
+              {mensualData.map((r,i)=>(
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="px-5 py-3 font-medium">{r.mes}</td>
+                  <td className="px-5 py-3 text-right font-mono">${fmt(r.fob)}</td>
+                  <td className="px-5 py-3 text-right font-mono">${fmt(r.cif)}</td>
+                  <td className="px-5 py-3 text-right font-mono text-amber-600">${fmt(r.tributos)}</td>
+                  <td className="px-5 py-3 text-right font-mono">${fmt(r.gastos)}</td>
+                  <td className="px-5 py-3 text-right font-bold text-emerald-700">${fmt(r.landed)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-gray-300 bg-gray-50 font-bold">
+                <td className="px-5 py-3">TOTAL Q1 2026</td>
+                <td className="px-5 py-3 text-right">${fmt(mensualData.reduce((s,r)=>s+r.fob,0))}</td>
+                <td className="px-5 py-3 text-right">${fmt(mensualData.reduce((s,r)=>s+r.cif,0))}</td>
+                <td className="px-5 py-3 text-right text-amber-600">${fmt(mensualData.reduce((s,r)=>s+r.tributos,0))}</td>
+                <td className="px-5 py-3 text-right">${fmt(mensualData.reduce((s,r)=>s+r.gastos,0))}</td>
+                <td className="px-5 py-3 text-right text-emerald-700">${fmt(mensualData.reduce((s,r)=>s+r.landed,0))}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </Card>
+      )}
+
+      {tab==='proveedor' && (
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left">
+              <th className="px-5 py-3 font-semibold text-gray-600">Proveedor</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-center">OCs</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">FOB Total</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Tributos</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Landed Total</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">% del Total</th>
+            </tr></thead>
+            <tbody>
+              {provData.map((r,i)=>(
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="px-5 py-3 font-medium">{r.proveedor}</td>
+                  <td className="px-5 py-3 text-center">{r.ocs}</td>
+                  <td className="px-5 py-3 text-right font-mono">${fmt(r.fob)}</td>
+                  <td className="px-5 py-3 text-right font-mono text-amber-600">${fmt(r.tributos)}</td>
+                  <td className="px-5 py-3 text-right font-bold">${fmt(r.landed)}</td>
+                  <td className="px-5 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="w-16 bg-gray-200 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width:`${r.pct}%`}}></div></div>
+                      <span className="font-mono text-xs">{r.pct}%</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+
+      {tab==='producto' && (
+        <Card className="overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left">
+              <th className="px-5 py-3 font-semibold text-gray-600">Producto</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-center">Imports.</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Qty Total</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Costo Prom.</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Landed Total</th>
+              <th className="px-5 py-3 font-semibold text-gray-600 text-right">Margen Est.</th>
+            </tr></thead>
+            <tbody>
+              {prodData.map((r,i)=>(
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="px-5 py-3 font-medium">{r.producto}</td>
+                  <td className="px-5 py-3 text-center">{r.importaciones}</td>
+                  <td className="px-5 py-3 text-right">{r.qtyTotal.toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right font-mono">${fmt(r.costoPromedio)}</td>
+                  <td className="px-5 py-3 text-right font-bold">${fmt(r.landed)}</td>
+                  <td className="px-5 py-3 text-right"><Badge text={r.margen} color="green" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+/* ============================================================
+   MAIN APP
+   ============================================================ */
+const App = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [page, setPage] = useState('dashboard');
+
+  if(!loggedIn) return <LoginPage onLogin={()=>setLoggedIn(true)} />;
+
+  const pages = {
+    dashboard: DashboardPage,
+    proveedores: ProveedoresPage,
+    productos: ProductosPage,
+    ordenes: OrdenesPage,
+    importaciones: ImportacionesPage,
+    gastos: GastosPage,
+    dua: DuaPage,
+    prorrateo: ProrrateoPage,
+    almacenes: AlmacenesPage,
+    kardex: KardexPage,
+    reportes: ReportesPage,
+  };
+  const PageComponent = pages[page] || DashboardPage;
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar current={page} onChange={setPage} onLogout={()=>{setLoggedIn(false);setPage('dashboard');}} />
+      <main className="flex-1 ml-64">
+        <div className="p-8">
+          <PageComponent />
+        </div>
+        <footer className="text-center py-4 text-xs text-gray-400 border-t border-gray-200 mt-8">
+          ImportCost Pro v1.0 - Demo Interactivo | Sistema de Costeo de Importaciones para el Peru
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -19,7 +19,9 @@ CREATE PROCEDURE sp_dua_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         d.id, d.numero_dua, d.fecha_registro, d.fecha_levante,
@@ -35,8 +37,22 @@ BEGIN
       AND (p_importacion_id IS NULL OR d.importacion_id = p_importacion_id)
       AND (p_estado IS NULL OR d.estado = p_estado)
     ORDER BY d.fecha_registro DESC
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
+
+CREATE PROCEDURE sp_dua_contar(
+    IN p_empresa_id INT,
+    IN p_importacion_id INT,
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM dua_documentos d
+    WHERE d.empresa_id = p_empresa_id
+      AND (p_importacion_id IS NULL OR d.importacion_id = p_importacion_id)
+      AND (p_estado IS NULL OR d.estado = p_estado);
+END //
+
 
 CREATE PROCEDURE sp_dua_obtener(
     IN p_id INT,
@@ -352,7 +368,9 @@ CREATE PROCEDURE sp_factura_listar(
 )
 BEGIN
     DECLARE v_offset INT DEFAULT 0;
-    SET v_offset = (COALESCE(p_page, 1) - 1) * COALESCE(p_per_page, 20);
+    DECLARE v_limit INT DEFAULT 20;
+    SET v_limit = IFNULL(p_per_page, 20);
+    SET v_offset = (IFNULL(p_page, 1) - 1) * v_limit;
 
     SELECT
         f.id, f.numero_factura, f.fecha_factura,
@@ -371,8 +389,24 @@ BEGIN
       AND (p_proveedor_id IS NULL OR f.proveedor_id = p_proveedor_id)
       AND (p_estado IS NULL OR f.estado = p_estado)
     ORDER BY f.fecha_factura DESC
-    LIMIT v_offset, COALESCE(p_per_page, 20);
+    LIMIT v_offset, v_limit;
 END //
+
+CREATE PROCEDURE sp_factura_contar(
+    IN p_empresa_id INT,
+    IN p_oc_id INT,
+    IN p_proveedor_id INT,
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM facturas_proveedor f
+    WHERE f.empresa_id = p_empresa_id
+      AND (p_oc_id IS NULL OR f.oc_id = p_oc_id)
+      AND (p_proveedor_id IS NULL OR f.proveedor_id = p_proveedor_id)
+      AND (p_estado IS NULL OR f.estado = p_estado);
+END //
+
 
 CREATE PROCEDURE sp_factura_obtener(
     IN p_id INT,
@@ -444,5 +478,77 @@ BEGIN
             COALESCE(p_precio_total, p_cantidad * p_precio_unitario));
     SELECT LAST_INSERT_ID() AS id;
 END //
+
+-- ============================================================================
+-- TRANSPORTE: Obtener por ID
+-- ============================================================================
+CREATE PROCEDURE sp_doc_transporte_obtener(
+    IN p_id INT,
+    IN p_empresa_id INT
+)
+BEGIN
+    SELECT dt.*, i.numero_importacion
+    FROM documentos_transporte dt
+    JOIN importaciones i ON dt.importacion_id = i.id
+    WHERE dt.id = p_id AND dt.empresa_id = p_empresa_id;
+END //
+
+
+-- ============================================================================
+-- FACTURAS: Actualizar
+-- ============================================================================
+CREATE PROCEDURE sp_factura_actualizar(
+    IN p_id INT,
+    IN p_empresa_id INT,
+    IN p_oc_id INT,
+    IN p_proveedor_id INT,
+    IN p_fecha_factura DATE,
+    IN p_moneda_id INT,
+    IN p_tipo_cambio DECIMAL(10,4),
+    IN p_subtotal DECIMAL(15,2),
+    IN p_impuesto DECIMAL(15,2),
+    IN p_total DECIMAL(15,2),
+    IN p_notas TEXT,
+    IN p_user_id INT
+)
+BEGIN
+    UPDATE facturas_proveedor SET
+        oc_id = p_oc_id,
+        proveedor_id = p_proveedor_id,
+        fecha_factura = COALESCE(p_fecha_factura, fecha_factura),
+        moneda_id = COALESCE(p_moneda_id, moneda_id),
+        tipo_cambio = COALESCE(p_tipo_cambio, tipo_cambio),
+        subtotal = COALESCE(p_subtotal, subtotal),
+        impuesto = COALESCE(p_impuesto, impuesto),
+        total = COALESCE(p_total, total),
+        notas = p_notas,
+        updated_at = NOW()
+    WHERE id = p_id AND empresa_id = p_empresa_id;
+
+    SELECT p_id AS id, 'updated' AS result;
+END //
+
+
+-- ============================================================================
+-- GASTOS: Obtener por ID
+-- ============================================================================
+CREATE PROCEDURE sp_gasto_obtener(
+    IN p_id INT,
+    IN p_empresa_id INT
+)
+BEGIN
+    SELECT g.*,
+           tg.nombre AS tipo_gasto_nombre,
+           m.codigo AS moneda_codigo, m.simbolo AS moneda_simbolo,
+           i.numero_importacion,
+           oc.numero_oc
+    FROM gastos_importacion g
+    JOIN tipos_gasto tg ON g.tipo_gasto_codigo = tg.codigo
+    JOIN monedas m ON g.moneda_id = m.id
+    LEFT JOIN importaciones i ON g.importacion_id = i.id
+    LEFT JOIN ordenes_compra oc ON g.oc_id = oc.id
+    WHERE g.id = p_id AND g.empresa_id = p_empresa_id;
+END //
+
 
 DELIMITER ;
