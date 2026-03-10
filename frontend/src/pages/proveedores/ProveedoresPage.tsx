@@ -41,7 +41,7 @@ export default function ProveedoresPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<Proveedor>>("/api/proveedores", {
-          params: { page, size: 20, search: search || undefined },
+          params: { page, per_page: 20, search: search || undefined },
         })
         .then((r) => r.data),
   });

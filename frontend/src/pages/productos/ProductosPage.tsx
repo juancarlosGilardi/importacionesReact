@@ -51,7 +51,7 @@ export default function ProductosPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<Producto>>("/api/productos", {
-          params: { page, size: 20, search: search || undefined },
+          params: { page, per_page: 20, search: search || undefined },
         })
         .then((r) => r.data),
   });

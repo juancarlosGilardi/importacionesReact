@@ -95,7 +95,7 @@ export default function ValeIngresoPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<Proveedor>>("/api/proveedores", {
-          params: { page: 1, size: 999 },
+          params: { page: 1, per_page: 999 },
         })
         .then((r) => r.data),
   });

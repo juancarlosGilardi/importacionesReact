@@ -1,3 +1,4 @@
+import math
 from fastapi import APIRouter, Depends, Query
 from ..database import call_sp
 from ..auth import get_current_user
@@ -23,7 +24,14 @@ async def listar(
         (user["empresa_id"], search, categoria_id, status),
         fetch_one=True,
     )
-    return {"items": items, "total": total["total"], "page": page, "per_page": per_page}
+    total_count = total["total"]
+    return {
+        "items": items,
+        "total": total_count,
+        "page": page,
+        "per_page": per_page,
+        "pages": math.ceil(total_count / per_page) if per_page > 0 else 0,
+    }
 
 
 @router.get("/{id}")

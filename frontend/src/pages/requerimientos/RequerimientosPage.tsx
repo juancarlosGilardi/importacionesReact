@@ -104,7 +104,7 @@ export default function RequerimientosPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<Proveedor>>("/api/proveedores", {
-          params: { page: 1, size: 999, activo: 1 },
+          params: { page: 1, per_page: 999, activo: 1 },
         })
         .then((r) => r.data),
   });

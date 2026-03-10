@@ -58,7 +58,7 @@ export default function MovimientoFormPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<OrdenCompra>>("/api/ordenes", {
-          params: { page: 1, size: 999 },
+          params: { page: 1, per_page: 999 },
         })
         .then((r) => r.data),
     enabled: tipo === "ingreso",

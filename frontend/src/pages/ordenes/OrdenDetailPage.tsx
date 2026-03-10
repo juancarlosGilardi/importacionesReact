@@ -106,7 +106,7 @@ export default function OrdenDetailPage() {
     queryFn: () =>
       api
         .get<PaginatedResponse<Producto>>("/api/productos", {
-          params: { page: 1, size: 999 },
+          params: { page: 1, per_page: 999 },
         })
         .then((r) => r.data),
   });
