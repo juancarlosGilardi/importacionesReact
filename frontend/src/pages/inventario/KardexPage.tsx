@@ -167,7 +167,7 @@ export default function KardexPage() {
             <Select
               value={almacenId}
               onValueChange={(val) =>
-                setAlmacenId(val === "__all__" ? "" : val)
+                setAlmacenId(val === "__all__" ? "" : val ?? "")
               }
             >
               <SelectTrigger className="w-full">

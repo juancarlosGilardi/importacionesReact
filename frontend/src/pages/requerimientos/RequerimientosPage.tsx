@@ -391,7 +391,7 @@ export default function RequerimientosPage() {
                 <Select
                   value={form.prioridad}
                   onValueChange={(val) =>
-                    setForm((f) => ({ ...f, prioridad: val }))
+                    setForm((f) => ({ ...f, prioridad: val ?? "" }))
                   }
                 >
                   <SelectTrigger>
@@ -426,7 +426,7 @@ export default function RequerimientosPage() {
                   onValueChange={(val) =>
                     setForm((f) => ({
                       ...f,
-                      almacen_id: val === "none" ? "" : val,
+                      almacen_id: val === "none" ? "" : val ?? "",
                     }))
                   }
                 >
@@ -450,7 +450,7 @@ export default function RequerimientosPage() {
                   onValueChange={(val) =>
                     setForm((f) => ({
                       ...f,
-                      proveedor_sugerido_id: val === "none" ? "" : val,
+                      proveedor_sugerido_id: val === "none" ? "" : val ?? "",
                     }))
                   }
                 >

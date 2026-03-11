@@ -169,7 +169,7 @@ export default function ProveedorFormPage() {
                 <Label htmlFor="pais">Pais</Label>
                 <Select
                   value={form.pais}
-                  onValueChange={(val) => updateField("pais", val)}
+                  onValueChange={(val) => updateField("pais", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar pais" />
@@ -218,7 +218,7 @@ export default function ProveedorFormPage() {
                 <Label htmlFor="moneda">Moneda</Label>
                 <Select
                   value={form.moneda}
-                  onValueChange={(val) => updateField("moneda", val)}
+                  onValueChange={(val) => updateField("moneda", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar moneda" />
@@ -237,7 +237,7 @@ export default function ProveedorFormPage() {
                 <Label htmlFor="incoterm">Incoterm Default</Label>
                 <Select
                   value={form.incoterm_default}
-                  onValueChange={(val) => updateField("incoterm_default", val)}
+                  onValueChange={(val) => updateField("incoterm_default", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar incoterm" />

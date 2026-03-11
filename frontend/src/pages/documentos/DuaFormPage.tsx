@@ -268,7 +268,7 @@ export default function DuaFormPage() {
                     <Label htmlFor="importacion_id">Importacion</Label>
                     <Select
                       value={form.importacion_id}
-                      onValueChange={(val) => updateField("importacion_id", val)}
+                      onValueChange={(val) => updateField("importacion_id", val ?? "")}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar importacion" />
@@ -593,7 +593,7 @@ export default function DuaFormPage() {
                     <Label htmlFor="estado">Estado</Label>
                     <Select
                       value={form.estado}
-                      onValueChange={(val) => updateField("estado", val)}
+                      onValueChange={(val) => updateField("estado", val ?? "")}
                     >
                       <SelectTrigger className="w-full sm:w-[220px]">
                         <SelectValue placeholder="Seleccionar estado" />

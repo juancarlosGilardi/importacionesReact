@@ -111,7 +111,7 @@ export default function GastosPage() {
       <div className="flex flex-wrap items-center gap-4">
         <Select
           value={importacionId}
-          onValueChange={(val) => setImportacionId(val === "__all__" ? "" : val)}
+          onValueChange={(val) => setImportacionId(val === "__all__" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Todas las importaciones" />
@@ -128,7 +128,7 @@ export default function GastosPage() {
 
         <Select
           value={tipoGasto}
-          onValueChange={(val) => setTipoGasto(val === "__all__" ? "" : val)}
+          onValueChange={(val) => setTipoGasto(val === "__all__" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Todos los tipos" />
@@ -145,7 +145,7 @@ export default function GastosPage() {
 
         <Select
           value={estado}
-          onValueChange={(val) => setEstado(val === "__all__" ? "" : val)}
+          onValueChange={(val) => setEstado(val === "__all__" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Todos los estados" />

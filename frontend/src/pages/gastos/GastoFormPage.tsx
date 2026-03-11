@@ -217,7 +217,7 @@ export default function GastoFormPage() {
                 <Select
                   value={form.importacion_id}
                   onValueChange={(val) =>
-                    updateField("importacion_id", val === "__none__" ? "" : val)
+                    updateField("importacion_id", val === "__none__" ? "" : val ?? "")
                   }
                 >
                   <SelectTrigger className="w-full">
@@ -239,7 +239,7 @@ export default function GastoFormPage() {
                 <Select
                   value={form.oc_id}
                   onValueChange={(val) =>
-                    updateField("oc_id", val === "__none__" ? "" : val)
+                    updateField("oc_id", val === "__none__" ? "" : val ?? "")
                   }
                 >
                   <SelectTrigger className="w-full">
@@ -261,7 +261,7 @@ export default function GastoFormPage() {
                 <Label htmlFor="tipo_gasto_codigo">Tipo de Gasto</Label>
                 <Select
                   value={form.tipo_gasto_codigo}
-                  onValueChange={(val) => updateField("tipo_gasto_codigo", val)}
+                  onValueChange={(val) => updateField("tipo_gasto_codigo", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar tipo de gasto" />
@@ -314,7 +314,7 @@ export default function GastoFormPage() {
                 <Label htmlFor="moneda_id">Moneda</Label>
                 <Select
                   value={form.moneda_id}
-                  onValueChange={(val) => updateField("moneda_id", val)}
+                  onValueChange={(val) => updateField("moneda_id", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar moneda" />
@@ -382,7 +382,7 @@ export default function GastoFormPage() {
                   <Label htmlFor="estado">Estado</Label>
                   <Select
                     value={form.estado}
-                    onValueChange={(val) => updateField("estado", val)}
+                    onValueChange={(val) => updateField("estado", val ?? "")}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Seleccionar estado" />

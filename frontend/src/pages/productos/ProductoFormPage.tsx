@@ -183,7 +183,7 @@ export default function ProductoFormPage() {
                 <Label htmlFor="unidad_medida">Unidad de Medida</Label>
                 <Select
                   value={form.unidad_medida}
-                  onValueChange={(val) => updateField("unidad_medida", val)}
+                  onValueChange={(val) => updateField("unidad_medida", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar unidad" />

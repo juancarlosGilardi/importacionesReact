@@ -354,7 +354,7 @@ export default function TomaInventarioPage() {
               <Select
                 value={form.almacen_id}
                 onValueChange={(val) =>
-                  setForm((f) => ({ ...f, almacen_id: val }))
+                  setForm((f) => ({ ...f, almacen_id: val ?? "" }))
                 }
               >
                 <SelectTrigger>

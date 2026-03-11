@@ -196,7 +196,7 @@ export default function ImportacionFormPage() {
                 <Label htmlFor="via_transporte">Vía de Transporte</Label>
                 <Select
                   value={form.via_transporte}
-                  onValueChange={(val) => updateField("via_transporte", val)}
+                  onValueChange={(val) => updateField("via_transporte", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar vía" />
@@ -295,7 +295,7 @@ export default function ImportacionFormPage() {
                     <Label htmlFor="estado">Estado</Label>
                     <Select
                       value={form.estado}
-                      onValueChange={(val) => updateField("estado", val)}
+                      onValueChange={(val) => updateField("estado", val ?? "")}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar estado" />

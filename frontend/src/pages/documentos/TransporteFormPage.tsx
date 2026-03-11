@@ -188,7 +188,7 @@ export default function TransporteFormPage() {
                 <Label htmlFor="importacion_id">Importacion</Label>
                 <Select
                   value={form.importacion_id}
-                  onValueChange={(val) => updateField("importacion_id", val)}
+                  onValueChange={(val) => updateField("importacion_id", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar importacion" />
@@ -207,7 +207,7 @@ export default function TransporteFormPage() {
                 <Label htmlFor="tipo_documento">Tipo de Documento</Label>
                 <Select
                   value={form.tipo_documento}
-                  onValueChange={(val) => updateField("tipo_documento", val)}
+                  onValueChange={(val) => updateField("tipo_documento", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar tipo" />

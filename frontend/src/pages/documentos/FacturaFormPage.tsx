@@ -216,7 +216,7 @@ export default function FacturaFormPage() {
                 <Label htmlFor="proveedor_id">Proveedor</Label>
                 <Select
                   value={form.proveedor_id}
-                  onValueChange={(val) => updateField("proveedor_id", val)}
+                  onValueChange={(val) => updateField("proveedor_id", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar proveedor" />
@@ -236,7 +236,7 @@ export default function FacturaFormPage() {
                 <Select
                   value={form.oc_id}
                   onValueChange={(val) =>
-                    updateField("oc_id", val === "__none__" ? "" : val)
+                    updateField("oc_id", val === "__none__" ? "" : val ?? "")
                   }
                 >
                   <SelectTrigger className="w-full">
@@ -269,7 +269,7 @@ export default function FacturaFormPage() {
                 <Label htmlFor="moneda_id">Moneda</Label>
                 <Select
                   value={form.moneda_id}
-                  onValueChange={(val) => updateField("moneda_id", val)}
+                  onValueChange={(val) => updateField("moneda_id", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar moneda" />

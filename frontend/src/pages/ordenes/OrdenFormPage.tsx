@@ -185,7 +185,7 @@ export default function OrdenFormPage() {
                 <Label htmlFor="proveedor_id">Proveedor</Label>
                 <Select
                   value={form.proveedor_id}
-                  onValueChange={(val) => updateField("proveedor_id", val)}
+                  onValueChange={(val) => updateField("proveedor_id", val ?? "")}
                   required
                 >
                   <SelectTrigger className="w-full">
@@ -228,7 +228,7 @@ export default function OrdenFormPage() {
                 <Label htmlFor="incoterm">Incoterm</Label>
                 <Select
                   value={form.incoterm}
-                  onValueChange={(val) => updateField("incoterm", val)}
+                  onValueChange={(val) => updateField("incoterm", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar incoterm" />
@@ -247,7 +247,7 @@ export default function OrdenFormPage() {
                 <Label htmlFor="moneda_id">Moneda</Label>
                 <Select
                   value={form.moneda_id}
-                  onValueChange={(val) => updateField("moneda_id", val)}
+                  onValueChange={(val) => updateField("moneda_id", val ?? "")}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar moneda" />

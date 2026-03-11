@@ -160,7 +160,7 @@ export default function MovimientoFormPage() {
                   <Label htmlFor="almacen_id">Almacen</Label>
                   <Select
                     value={form.almacen_id}
-                    onValueChange={(val) => updateField("almacen_id", val)}
+                    onValueChange={(val) => updateField("almacen_id", val ?? "")}
                     required
                   >
                     <SelectTrigger className="w-full">
@@ -184,7 +184,7 @@ export default function MovimientoFormPage() {
                     <Label htmlFor="almacen_origen_id">Almacen Origen</Label>
                     <Select
                       value={form.almacen_origen_id}
-                      onValueChange={(val) => updateField("almacen_origen_id", val)}
+                      onValueChange={(val) => updateField("almacen_origen_id", val ?? "")}
                       required
                     >
                       <SelectTrigger className="w-full">
@@ -203,7 +203,7 @@ export default function MovimientoFormPage() {
                     <Label htmlFor="almacen_destino_id">Almacen Destino</Label>
                     <Select
                       value={form.almacen_destino_id}
-                      onValueChange={(val) => updateField("almacen_destino_id", val)}
+                      onValueChange={(val) => updateField("almacen_destino_id", val ?? "")}
                       required
                     >
                       <SelectTrigger className="w-full">
