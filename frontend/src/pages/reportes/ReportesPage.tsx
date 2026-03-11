@@ -103,7 +103,7 @@ function ResumenMensualTab() {
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
             Anio
           </label>
-          <Select value={anio} onValueChange={setAnio}>
+          <Select value={anio} onValueChange={(val) => setAnio(val ?? "")}>
             <SelectTrigger className="w-[130px]">
               <SelectValue />
             </SelectTrigger>
@@ -493,7 +493,7 @@ function PorProductoTab() {
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
             Producto
           </label>
-          <Select value={productoId} onValueChange={setProductoId}>
+          <Select value={productoId} onValueChange={(val) => setProductoId(val ?? "")}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Seleccionar producto" />
             </SelectTrigger>

@@ -83,7 +83,7 @@ function ResumenComprasTab() {
       <div className="flex items-center gap-4">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Anio</label>
-          <Select value={anio} onValueChange={setAnio}>
+          <Select value={anio} onValueChange={(val) => setAnio(val ?? "")}>
             <SelectTrigger className="w-[130px]">
               <SelectValue />
             </SelectTrigger>

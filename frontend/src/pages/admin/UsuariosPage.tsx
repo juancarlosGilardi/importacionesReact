@@ -330,7 +330,7 @@ export default function UsuariosPage() {
             className="pl-9"
           />
         </div>
-        <Select value={filterRol} onValueChange={setFilterRol}>
+        <Select value={filterRol} onValueChange={(val) => setFilterRol(val ?? "")}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Rol" />
           </SelectTrigger>
@@ -343,7 +343,7 @@ export default function UsuariosPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
+        <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val ?? "")}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>

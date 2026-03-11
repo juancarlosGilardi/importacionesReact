@@ -144,7 +144,7 @@ export default function InventarioValorizadoPage() {
               <label className="text-xs font-medium text-muted-foreground">
                 Moneda
               </label>
-              <Select value={moneda} onValueChange={setMoneda}>
+              <Select value={moneda} onValueChange={(val) => setMoneda(val ?? "")}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>

@@ -212,7 +212,7 @@ function MovimientosAlmacenTab() {
       <div className="flex flex-wrap items-end gap-4">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Almacen</label>
-          <Select value={almacenId} onValueChange={setAlmacenId}>
+          <Select value={almacenId} onValueChange={(val) => setAlmacenId(val ?? "")}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
@@ -228,7 +228,7 @@ function MovimientosAlmacenTab() {
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Periodo</label>
-          <Select value={meses} onValueChange={setMeses}>
+          <Select value={meses} onValueChange={(val) => setMeses(val ?? "")}>
             <SelectTrigger className="w-48">
               <SelectValue />
             </SelectTrigger>

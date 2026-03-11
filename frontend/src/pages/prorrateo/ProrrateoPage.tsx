@@ -184,7 +184,7 @@ export default function ProrrateoPage() {
             {/* Metodo select */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Metodo de Prorrateo</label>
-              <Select value={metodo} onValueChange={setMetodo}>
+              <Select value={metodo} onValueChange={(val) => setMetodo(val ?? "")}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
