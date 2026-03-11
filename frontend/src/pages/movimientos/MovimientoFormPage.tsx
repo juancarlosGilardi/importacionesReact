@@ -227,7 +227,7 @@ export default function MovimientoFormPage() {
                   <Label htmlFor="oc_id">Orden de Compra (opcional)</Label>
                   <Select
                     value={form.oc_id}
-                    onValueChange={(val) => updateField("oc_id", val === "none" ? "" : val)}
+                    onValueChange={(val) => updateField("oc_id", val === "none" ? "" : val ?? "")}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Sin OC asociada" />

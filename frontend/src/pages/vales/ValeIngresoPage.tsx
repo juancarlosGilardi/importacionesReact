@@ -356,7 +356,7 @@ export default function ValeIngresoPage() {
                   onValueChange={(val) =>
                     setForm((prev) => ({
                       ...prev,
-                      almacen_id: val,
+                      almacen_id: val ?? "",
                       concepto_id: "",
                     }))
                   }
@@ -407,7 +407,7 @@ export default function ValeIngresoPage() {
                   onValueChange={(val) =>
                     setForm((prev) => ({
                       ...prev,
-                      proveedor_id: val === "none" ? "" : val,
+                      proveedor_id: val === "none" ? "" : val ?? "",
                     }))
                   }
                 >
