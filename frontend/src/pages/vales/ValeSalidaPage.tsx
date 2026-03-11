@@ -182,7 +182,7 @@ export default function ValeSalidaPage() {
           <Select
             value={estado}
             onValueChange={(val) => {
-              setEstado(val === "all" ? "" : val);
+              setEstado(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >
@@ -344,7 +344,7 @@ export default function ValeSalidaPage() {
                   onValueChange={(val) =>
                     setForm((prev) => ({
                       ...prev,
-                      almacen_id: val,
+                      almacen_id: val ?? "",
                       concepto_id: "",
                     }))
                   }
@@ -367,7 +367,7 @@ export default function ValeSalidaPage() {
                 <Select
                   value={form.concepto_id}
                   onValueChange={(val) =>
-                    setForm((prev) => ({ ...prev, concepto_id: val }))
+                    setForm((prev) => ({ ...prev, concepto_id: val ?? "" }))
                   }
                   disabled={!form.almacen_id}
                 >
