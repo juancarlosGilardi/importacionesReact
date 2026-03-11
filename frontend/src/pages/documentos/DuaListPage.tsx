@@ -42,6 +42,7 @@ interface DuaListResponse {
   total: number;
   page: number;
   per_page: number;
+  pages: number;
 }
 
 export default function DuaListPage() {
@@ -98,7 +99,7 @@ export default function DuaListPage() {
         <Select
           value={importacionId}
           onValueChange={(val) => {
-            setImportacionId(val === "__all__" ? "" : val);
+            setImportacionId(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >
@@ -118,7 +119,7 @@ export default function DuaListPage() {
         <Select
           value={estado}
           onValueChange={(val) => {
-            setEstado(val === "__all__" ? "" : val);
+            setEstado(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >

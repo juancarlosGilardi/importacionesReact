@@ -102,14 +102,14 @@ export default function ProrrateoPage() {
     },
   });
 
-  const handleImportacionChange = (val: string) => {
-    setImportacionId(val);
+  const handleImportacionChange = (val: string | null) => {
+    setImportacionId(val ?? "");
     setOcId("");
     setResultado(null);
   };
 
-  const handleOcChange = (val: string) => {
-    setOcId(val);
+  const handleOcChange = (val: string | null) => {
+    setOcId(val ?? "");
     setResultado(null);
   };
 

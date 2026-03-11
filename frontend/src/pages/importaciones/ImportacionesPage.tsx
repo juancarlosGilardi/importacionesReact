@@ -120,7 +120,7 @@ export default function ImportacionesPage() {
         <Select
           value={estado}
           onValueChange={(val) => {
-            setEstado(val === "__all__" ? "" : val);
+            setEstado(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >

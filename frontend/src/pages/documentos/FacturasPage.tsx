@@ -112,7 +112,7 @@ export default function FacturasPage() {
         <Select
           value={proveedorId}
           onValueChange={(val) => {
-            setProveedorId(val === "__all__" ? "" : val);
+            setProveedorId(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >
@@ -132,7 +132,7 @@ export default function FacturasPage() {
         <Select
           value={ocId}
           onValueChange={(val) => {
-            setOcId(val === "__all__" ? "" : val);
+            setOcId(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >
@@ -152,7 +152,7 @@ export default function FacturasPage() {
         <Select
           value={estado}
           onValueChange={(val) => {
-            setEstado(val === "__all__" ? "" : val);
+            setEstado(val === "__all__" ? "" : val ?? "");
             setPage(1);
           }}
         >

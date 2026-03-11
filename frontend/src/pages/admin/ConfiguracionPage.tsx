@@ -166,7 +166,7 @@ export default function ConfiguracionPage() {
         <Select
           value={val}
           onValueChange={(v) =>
-            handleValueChange(item.seccion, item.clave, v)
+            handleValueChange(item.seccion, item.clave, v ?? "")
           }
         >
           <SelectTrigger className="w-[140px]">
@@ -199,7 +199,7 @@ export default function ConfiguracionPage() {
         <Select
           value={val}
           onValueChange={(v) =>
-            handleValueChange(item.seccion, item.clave, v)
+            handleValueChange(item.seccion, item.clave, v ?? "")
           }
         >
           <SelectTrigger className="w-[180px]">
@@ -218,7 +218,7 @@ export default function ConfiguracionPage() {
         <Select
           value={val}
           onValueChange={(v) =>
-            handleValueChange(item.seccion, item.clave, v)
+            handleValueChange(item.seccion, item.clave, v ?? "")
           }
         >
           <SelectTrigger className="w-[180px]">
@@ -238,7 +238,7 @@ export default function ConfiguracionPage() {
         <Select
           value={val}
           onValueChange={(v) =>
-            handleValueChange(item.seccion, item.clave, v)
+            handleValueChange(item.seccion, item.clave, v ?? "")
           }
         >
           <SelectTrigger className="w-[140px]">

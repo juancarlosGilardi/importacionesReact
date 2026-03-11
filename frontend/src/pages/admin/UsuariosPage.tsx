@@ -600,7 +600,7 @@ export default function UsuariosPage() {
                 <Label htmlFor="rol">Rol</Label>
                 <Select
                   value={form.rol}
-                  onValueChange={(v) => updateField("rol", v)}
+                  onValueChange={(v) => updateField("rol", v ?? "")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar rol" />
@@ -618,7 +618,7 @@ export default function UsuariosPage() {
                 <Label htmlFor="almacen">Almacén por defecto</Label>
                 <Select
                   value={form.almacen_default_id}
-                  onValueChange={(v) => updateField("almacen_default_id", v)}
+                  onValueChange={(v) => updateField("almacen_default_id", v ?? "")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sin asignar" />
