@@ -1,0 +1,71 @@
+{
+  "name": "importcost-pro",
+  "version": "1.0.0",
+  "description": "ImportCost Pro - Sistema de Importaciones y Costeo para PYMES",
+  "main": "main.js",
+  "author": "ImportCost Pro",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "npm run build:frontend && electron-builder --win",
+    "build:frontend": "cd ../frontend && npm run build",
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win --x64"
+  },
+  "dependencies": {
+    "electron-is-dev": "^2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.importcost.pro",
+    "productName": "ImportCost Pro",
+    "copyright": "Copyright 2026 ImportCost Pro",
+    "directories": {
+      "output": "dist",
+      "buildResources": "resources"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "web-dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*.py",
+          "requirements.txt",
+          ".env.example",
+          "!__pycache__",
+          "!venv",
+          "!.venv"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "resources/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerHeaderIcon": "resources/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ImportCost Pro"
+    }
+  }
+}

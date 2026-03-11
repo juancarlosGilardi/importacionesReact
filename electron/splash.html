@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    height: 100vh; background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-app-region: drag; user-select: none;
+  }
+  .card {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2740 100%);
+    border-radius: 16px; padding: 40px 50px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center; color: white;
+  }
+  .logo { font-size: 42px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  .logo span { color: #f59e0b; }
+  .subtitle { font-size: 13px; opacity: 0.7; margin-bottom: 24px; }
+  .loader {
+    width: 120px; height: 3px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; margin: 0 auto; overflow: hidden;
+  }
+  .loader::after {
+    content: ''; display: block; width: 40%; height: 100%;
+    background: #f59e0b; border-radius: 2px;
+    animation: loading 1.2s ease-in-out infinite;
+  }
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+  .status { margin-top: 16px; font-size: 11px; opacity: 0.5; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Import<span>Cost</span> Pro</div>
+    <div class="subtitle">Sistema de Importaciones y Costeo</div>
+    <div class="loader"></div>
+    <div class="status">Iniciando...</div>
+  </div>
+</body>
+</html>
