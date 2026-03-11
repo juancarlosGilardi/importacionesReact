@@ -160,7 +160,7 @@ export default function ValeSalidaPage() {
           <Select
             value={almacenId}
             onValueChange={(val) => {
-              setAlmacenId(val === "all" ? "" : val);
+              setAlmacenId(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >

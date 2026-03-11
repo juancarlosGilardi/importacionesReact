@@ -170,7 +170,7 @@ export default function RequerimientosPage() {
         <Select
           value={estado}
           onValueChange={(val) => {
-            setEstado(val === "all" ? "" : val);
+            setEstado(val === "all" ? "" : val ?? "");
             setPage(1);
           }}
         >
@@ -190,7 +190,7 @@ export default function RequerimientosPage() {
         <Select
           value={prioridad}
           onValueChange={(val) => {
-            setPrioridad(val === "all" ? "" : val);
+            setPrioridad(val === "all" ? "" : val ?? "");
             setPage(1);
           }}
         >

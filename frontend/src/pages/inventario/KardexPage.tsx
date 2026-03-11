@@ -145,7 +145,7 @@ export default function KardexPage() {
             </label>
             <Select
               value={productoId}
-              onValueChange={(val) => setProductoId(val)}
+              onValueChange={(val) => setProductoId(val ?? "")}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Seleccionar producto" />

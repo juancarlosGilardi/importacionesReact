@@ -171,7 +171,7 @@ export default function StockDisponiblePage() {
       <div className="flex flex-wrap items-center gap-3">
         <Select
           value={almacenId}
-          onValueChange={(val) => setAlmacenId(val === "all" ? "" : val)}
+          onValueChange={(val) => setAlmacenId(val === "all" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Todos los almacenes" />

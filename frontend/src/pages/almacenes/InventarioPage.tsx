@@ -63,7 +63,7 @@ export default function InventarioPage() {
         <div className="w-56">
           <Select
             value={almacenId}
-            onValueChange={(val) => setAlmacenId(val === "all" ? "" : val)}
+            onValueChange={(val) => setAlmacenId(val === "all" ? "" : val ?? "")}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Todos los almacenes" />

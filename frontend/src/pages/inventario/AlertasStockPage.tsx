@@ -135,7 +135,7 @@ export default function AlertasStockPage() {
       <div className="flex flex-wrap items-center gap-3">
         <Select
           value={almacenId}
-          onValueChange={(val) => setAlmacenId(val === "all" ? "" : val)}
+          onValueChange={(val) => setAlmacenId(val === "all" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Todos los almacenes" />
@@ -152,7 +152,7 @@ export default function AlertasStockPage() {
 
         <Select
           value={nivel}
-          onValueChange={(val) => setNivel(val === "all" ? "" : val)}
+          onValueChange={(val) => setNivel(val === "all" ? "" : val ?? "")}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Todos los niveles" />

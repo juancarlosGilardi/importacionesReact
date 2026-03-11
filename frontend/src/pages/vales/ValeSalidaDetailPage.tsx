@@ -281,7 +281,7 @@ export default function ValeSalidaDetailPage() {
                     <Select
                       value={newItem.producto_id}
                       onValueChange={(val) =>
-                        setNewItem((prev) => ({ ...prev, producto_id: val }))
+                        setNewItem((prev) => ({ ...prev, producto_id: val ?? "" }))
                       }
                     >
                       <SelectTrigger className="w-full">

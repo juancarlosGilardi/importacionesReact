@@ -93,7 +93,7 @@ export default function ListaValesPage() {
           <Select
             value={tipo}
             onValueChange={(val) => {
-              setTipo(val === "all" ? "" : val);
+              setTipo(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >
@@ -112,7 +112,7 @@ export default function ListaValesPage() {
           <Select
             value={almacenId}
             onValueChange={(val) => {
-              setAlmacenId(val === "all" ? "" : val);
+              setAlmacenId(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >

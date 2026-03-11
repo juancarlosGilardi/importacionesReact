@@ -140,7 +140,7 @@ export default function TomaInventarioPage() {
         <Select
           value={almacenId}
           onValueChange={(val) => {
-            setAlmacenId(val === "all" ? "" : val);
+            setAlmacenId(val === "all" ? "" : val ?? "");
             setPage(1);
           }}
         >
@@ -160,7 +160,7 @@ export default function TomaInventarioPage() {
         <Select
           value={estado}
           onValueChange={(val) => {
-            setEstado(val === "all" ? "" : val);
+            setEstado(val === "all" ? "" : val ?? "");
             setPage(1);
           }}
         >

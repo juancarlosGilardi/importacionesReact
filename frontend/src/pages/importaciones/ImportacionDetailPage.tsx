@@ -486,7 +486,7 @@ export default function ImportacionDetailPage() {
           <div className="py-4">
             <Select
               value={selectedOcId}
-              onValueChange={(val) => setSelectedOcId(val)}
+              onValueChange={(val) => setSelectedOcId(val ?? "")}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Seleccionar orden de compra" />

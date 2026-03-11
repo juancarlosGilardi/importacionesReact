@@ -172,7 +172,7 @@ export default function ValeIngresoPage() {
           <Select
             value={almacenId}
             onValueChange={(val) => {
-              setAlmacenId(val === "all" ? "" : val);
+              setAlmacenId(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >
@@ -194,7 +194,7 @@ export default function ValeIngresoPage() {
           <Select
             value={estado}
             onValueChange={(val) => {
-              setEstado(val === "all" ? "" : val);
+              setEstado(val === "all" ? "" : val ?? "");
               setPage(1);
             }}
           >
@@ -379,7 +379,7 @@ export default function ValeIngresoPage() {
                 <Select
                   value={form.concepto_id}
                   onValueChange={(val) =>
-                    setForm((prev) => ({ ...prev, concepto_id: val }))
+                    setForm((prev) => ({ ...prev, concepto_id: val ?? "" }))
                   }
                   disabled={!form.almacen_id}
                 >

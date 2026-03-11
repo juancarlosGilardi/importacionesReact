@@ -77,7 +77,7 @@ export default function ConceptosAlmacenPage() {
             <label className="text-sm font-medium">Seleccionar Almacen:</label>
             <Select
               value={almacenId}
-              onValueChange={(val) => setAlmacenId(val)}
+              onValueChange={(val) => setAlmacenId(val ?? "")}
             >
               <SelectTrigger className="w-72">
                 <SelectValue placeholder="Seleccione un almacen" />

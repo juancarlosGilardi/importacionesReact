@@ -98,7 +98,7 @@ export default function MovimientosPage() {
         <div className="w-44">
           <Select
             value={tipo}
-            onValueChange={(val) => { setTipo(val === "all" ? "" : val); setPage(1); }}
+            onValueChange={(val) => { setTipo(val === "all" ? "" : val ?? ""); setPage(1); }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Tipo" />
@@ -116,7 +116,7 @@ export default function MovimientosPage() {
         <div className="w-48">
           <Select
             value={almacenId}
-            onValueChange={(val) => { setAlmacenId(val === "all" ? "" : val); setPage(1); }}
+            onValueChange={(val) => { setAlmacenId(val === "all" ? "" : val ?? ""); setPage(1); }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Almacen" />
@@ -135,7 +135,7 @@ export default function MovimientosPage() {
         <div className="w-44">
           <Select
             value={estado}
-            onValueChange={(val) => { setEstado(val === "all" ? "" : val); setPage(1); }}
+            onValueChange={(val) => { setEstado(val === "all" ? "" : val ?? ""); setPage(1); }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Estado" />

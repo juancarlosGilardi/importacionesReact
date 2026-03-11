@@ -122,7 +122,7 @@ export default function InventarioValorizadoPage() {
               <Select
                 value={almacenId}
                 onValueChange={(val) => {
-                  setAlmacenId(val === "all" ? "" : val);
+                  setAlmacenId(val === "all" ? "" : val ?? "");
                   setPage(1);
                 }}
               >
@@ -180,7 +180,7 @@ export default function InventarioValorizadoPage() {
               <Select
                 value={categoriaId}
                 onValueChange={(val) => {
-                  setCategoriaId(val === "all" ? "" : val);
+                  setCategoriaId(val === "all" ? "" : val ?? "");
                   setPage(1);
                 }}
               >
